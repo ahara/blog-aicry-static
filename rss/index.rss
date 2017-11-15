@@ -1,0 +1,671 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>aicry</title><description>Data Science, Machine Learning and AI</description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>aicry</title><link>http://localhost:2368/</link></image><generator>Ghost 1.17</generator><lastBuildDate>Wed, 15 Nov 2017 18:49:39 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Free hosting for Ghost</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;This post won't be related to main blog topics. However, recently Red Hat has closed OpenShift v2 platform where my blog was hosted and I had to migrate it to the new version or find another hosting. Finally, I decided to try with OpenShift v3.&lt;/p&gt;
+&lt;p&gt;Luckily, Red Hat prepared a&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/free-hosting-for-ghost/</link><guid isPermaLink="false">5a0b698f673a20359e2377e8</guid><category>Ghost</category><category>Free hosting</category><category>Blog</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Mon, 06 Nov 2017 12:02:17 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/OpenShift-LogoType.svg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/OpenShift-LogoType.svg" alt="Free hosting for Ghost"&gt;&lt;p&gt;This post won't be related to main blog topics. However, recently Red Hat has closed OpenShift v2 platform where my blog was hosted and I had to migrate it to the new version or find another hosting. Finally, I decided to try with OpenShift v3.&lt;/p&gt;
+&lt;p&gt;Luckily, Red Hat prepared a helpful &lt;a href="https://blog.openshift.com/migrating-ghost-app-openshift-3/"&gt;tutorial about Ghost and the migration&lt;/a&gt;, but there were some parts which were missed when you wanted to use free tier, private git repository or your custom domain. Thus, I will try to give some hints here to make installation easier.&lt;/p&gt;
+&lt;p&gt;Also, if you want to start new blog and you are not interested in migration, I think that still it can be very helpful for you.&lt;/p&gt;
+&lt;p&gt;The whole tutorial can be a little bit rough, but I hope that you will find it helpful.&lt;/p&gt;
+&lt;h3 id="prerequirements"&gt;Pre requirements&lt;/h3&gt;
+&lt;p&gt;At the beginning, I suggest to start with reading the Red Hat tutorial and get familiar with it. There is not need to follow the steps from it as they will be presented here in extended form, but reading explanations prepared by Red Hat can be helpful to understand more.&lt;/p&gt;
+&lt;p&gt;Next, download from Red Hat page the oc program and login - required command and token/password, you will find on &lt;a href="https://console.starter-us-east-1.openshift.com/console/command-line"&gt;https://console.starter-us-east-1.openshift.com/console/command-line&lt;/a&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc login https://api.starter-us-east-1.openshift.com --token=&amp;lt;hidden&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="setupmysql"&gt;Setup MySQL&lt;/h3&gt;
+&lt;p&gt;With the free tier, you are allowed to run two machines (pods). First of them, we will use to prepare database. So create a project and MySQL DB.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc new-project &amp;lt;project-name&amp;gt;
+oc new-app mysql-persistent
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Remember to save output from the command above as there will be login details to MySQL.&lt;/p&gt;
+&lt;h3 id="coderepository"&gt;Code repository&lt;/h3&gt;
+&lt;p&gt;Create &lt;a href="https://bitbucket.org/"&gt;BitBucket&lt;/a&gt; repository with your blog code. Eventually, if you are starting from scratch, you can obtain code from the official &lt;a href="https://github.com/TryGhost/Ghost"&gt;Ghost repo&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Next, generate SSH key pair.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;ssh-keygen -t rsa -b 4096 -C -f &amp;lt;key name&amp;gt; &amp;quot;your_email@example.com&amp;quot;
+eval &amp;quot;$(ssh-agent -s)&amp;quot;
+ssh-add ~/.ssh/&amp;lt;key-name&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you have some troubles, check the &lt;a href="https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/"&gt;GitHub tutorial&lt;/a&gt; about generating SSH keys&lt;/p&gt;
+&lt;p&gt;Also, due to security reasons, remember to do not use your basic key and just generate a new one as you will have to upload private key to Red Hat's cloud.&lt;/p&gt;
+&lt;p&gt;When your key files are ready, on BitBucket go to the settings of your repository and add public key (Repositories &amp;gt; &lt;em&gt;your-repository-name&lt;/em&gt; &amp;gt; Settings &amp;gt; Access keys &amp;gt; Add key).&lt;/p&gt;
+&lt;h3 id="ghostapplication"&gt;Ghost application&lt;/h3&gt;
+&lt;p&gt;The second pod, we will use to run Ghost application. But before we will do it, we have to add private SSH key to the cloud and configure to use it.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc secrets new-sshauth sshsecret --ssh-privatekey=~/.ssh/&amp;lt;key-name&amp;gt;
+oc annotate secret/sshsecret 'build.openshift.io/source-secret-match-uri-1=ssh://&amp;lt;git-repository&amp;gt;' --overwrite
+oc link builder sshsecret
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, we can try to create the app:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc new-app nodejs~&amp;lt;git-repository&amp;gt; g --name=ghost -e OPENSHIFT_APP_DNS=&amp;quot;&amp;quot; -e OPENSHIFT_MYSQL_DB_HOST=&amp;quot;mysql&amp;quot; -e OPENSHIFT_MYSQL_DB_PORT=&amp;quot;3306&amp;quot; -e OPENSHIFT_APP_NAME=&amp;quot;sampledb&amp;quot; -e OPENSHIFT_NODEJS_IP=&amp;quot;0.0.0.0&amp;quot; -e OPENSHIFT_NODEJS_PORT=&amp;quot;8080&amp;quot; -e OPENSHIFT_MYSQL_DB_USERNAME=&amp;quot;&amp;lt;username&amp;gt;&amp;quot; -e OPENSHIFT_MYSQL_DB_PASSWORD=&amp;quot;&amp;lt;password&amp;gt;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It's likely that it will fail due to a problem with fetching source code from BitBucket.&lt;/p&gt;
+&lt;p&gt;So then call:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc patch buildConfig ghost -p '{&amp;quot;spec&amp;quot;:{&amp;quot;source&amp;quot;:{&amp;quot;sourceSecret&amp;quot;:{&amp;quot;name&amp;quot;:&amp;quot;sshsecret&amp;quot;}}}}'
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Also, you will have to login to the OpenShift web panel and free Ghost pod if you use free tier. When it's done, rerun build.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc start-build ghost -n &amp;lt;build-name&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="routing"&gt;Routing&lt;/h3&gt;
+&lt;p&gt;To make your app visible, you have to configure routing.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc expose svc ghost
+oc set env dc ghost OPENSHIFT_APP_DNS=&amp;quot;&amp;lt;your-custom-domain&amp;gt;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you do not have your own domain, use the default one assigned by OpenShift. However, it's not too pretty.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc expose svc ghost
+oc get route ghost
+oc set env dc ghost OPENSHIFT_APP_DNS=&amp;quot;&amp;lt;from previous command below HOST/PORT&amp;gt;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="customdomain"&gt;Custom domain&lt;/h3&gt;
+&lt;p&gt;We have already started a bit domain configuration in the previous step. However, there are few things which left.&lt;/p&gt;
+&lt;p&gt;First, login to your domain provider website and configure &lt;em&gt;CMAKE&lt;/em&gt; entry.&lt;/p&gt;
+&lt;p&gt;Then, login to your new ghost app and go to Navigation tab and put your domain in as a &lt;em&gt;Home&lt;/em&gt; entry.&lt;/p&gt;
+&lt;h3 id="migratingcontent"&gt;Migrating content&lt;/h3&gt;
+&lt;p&gt;In the Red Hat tutorial, they suggest to create persistent storage for blog images and other content. However, with the free tier, you can use only one storage which has been already taken by MySQL. Thus, I've uploaded files directly to the Ghost app pod. In example, to upload images, you can do it with the following command:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;oc rsync ./images/ &amp;lt;pod-name&amp;gt;:/opt/app-root/src/content/images
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;However, uploaded images remain there as long as pod will be alive. Thus, maybe it is better to use external service to host the images.&lt;/p&gt;
+&lt;h3 id="sources"&gt;Sources&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blog.openshift.com/migrating-ghost-app-openshift-3/"&gt;https://blog.openshift.com/migrating-ghost-app-openshift-3/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.openshift.com/enterprise/3.1/dev_guide/copy_files_to_container.html"&gt;https://docs.openshift.com/enterprise/3.1/dev_guide/copy_files_to_container.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.openshift.com/container-platform/3.5/dev_guide/builds/build_inputs.html#source-secrets-ssh-key-authentication"&gt;https://docs.openshift.com/container-platform/3.5/dev_guide/builds/build_inputs.html#source-secrets-ssh-key-authentication&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;</content:encoded></item><item><title>profvis - code profiling in R</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Usually, when you run R code interactively, it is easy to spot which parts of the script are the most time-consuming. Nevertheless, for functions or nested loops, it may be not so obvious. In such moments, having code profiler is very helpful. I've tried few different ones and I can&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/profvis-code-profiling-in-r/</link><guid isPermaLink="false">5a0b698f673a20359e2377e7</guid><category>R</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Thu, 09 Mar 2017 18:34:30 GMT</pubDate><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Usually, when you run R code interactively, it is easy to spot which parts of the script are the most time-consuming. Nevertheless, for functions or nested loops, it may be not so obvious. In such moments, having code profiler is very helpful. I've tried few different ones and I can recommend &lt;code&gt;profvis&lt;/code&gt; as a first-choice profiler. There are two reasons. First, the package is extremely easy to start and use. Second, what is really important, it does not require wrapping up code into the function. So you can analyse any piece of the script.&lt;/p&gt;
+&lt;p&gt;Remember, when you want to optimise your code and rewrite it, you should focus on the most resource-consuming parts.&lt;/p&gt;
+&lt;h4 id="profvisinstallation"&gt;profvis - installation&lt;/h4&gt;
+&lt;p&gt;To install the profiler package, execute the command below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-language-r"&gt;install.packages('profvis')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="codeprofiling"&gt;Code profiling&lt;/h4&gt;
+&lt;p&gt;Everything, what you have to do to start with the profiler, is putting your code as an argument for the &lt;code&gt;profvis&lt;/code&gt; function. Seriously, that's all.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-language-r"&gt;library(profvis)
+
+sleep &amp;lt;- function(s) {
+  pause(s)
+}
+
+profvis({
+  # Code to analyse
+  for (i in 1:3) {
+    sleep(i / 100)
+    rnorm(100 ^ i)
+    i ^ 2
+    pause(i / 100)
+  }
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When the command executions finish, you will see the result of analysis. For each line of the code, there are memory and time consumptions as well as a timeline with the call stack.&lt;/p&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2017/03/profvis.png" alt="profvis screenshot"&gt;&lt;/p&gt;
+&lt;p&gt;On the timeline from the screenshot above, some of the calls can be not visible when they are very short. If you still want to see them, you can increase sampling interval using &lt;code&gt;profvis&lt;/code&gt; parameter &lt;code&gt;interval&lt;/code&gt;. By default, sampling is done every 10ms.&lt;/p&gt;
+&lt;h4 id="links"&gt;Links&lt;/h4&gt;
+&lt;p&gt;You can find additional information on the following pages:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://rstudio.github.io/profvis/"&gt;https://rstudio.github.io/profvis/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/rstudio/profvis"&gt;https://github.com/rstudio/profvis&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;</content:encoded></item><item><title>multidplyr - dplyr meets parallel processing</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;&lt;em&gt;Note: I assume that you are familiar with dplyr. If not, I suggest using first the following tutorial: &lt;a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html"&gt;https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html&lt;/a&gt;&lt;/em&gt;.&lt;/p&gt;
+&lt;h4 id="intro"&gt;Intro&lt;/h4&gt;
+&lt;p&gt;&lt;em&gt;dplyr&lt;/em&gt; is one of my favourite R packages for data manipulation. It's extremely handy, easy to start and also very elegant&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/</link><guid isPermaLink="false">5a0b698f673a20359e2377e6</guid><category>R</category><category>parallel computing</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Wed, 08 Mar 2017 18:14:07 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg" alt="multidplyr - dplyr meets parallel processing"&gt;&lt;p&gt;&lt;em&gt;Note: I assume that you are familiar with dplyr. If not, I suggest using first the following tutorial: &lt;a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html"&gt;https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html&lt;/a&gt;&lt;/em&gt;.&lt;/p&gt;
+&lt;h4 id="intro"&gt;Intro&lt;/h4&gt;
+&lt;p&gt;&lt;em&gt;dplyr&lt;/em&gt; is one of my favourite R packages for data manipulation. It's extremely handy, easy to start and also very elegant with the pipe notation (&lt;code&gt;%&amp;gt;%&lt;/code&gt;) yet powerful.&lt;/p&gt;
+&lt;p&gt;Nevertheless, among all these advantages, there is one thing which could be improved - unsupported parallelization. Due to the model of data processing, operations like &lt;code&gt;summarize&lt;/code&gt; or &lt;code&gt;do&lt;/code&gt; could be easily executed in parallel, but they are not.&lt;/p&gt;
+&lt;p&gt;Luckily, there is &lt;em&gt;multidplyr&lt;/em&gt; which takes all the best from &lt;em&gt;dplyr&lt;/em&gt; and adds parallel processing. You can find the project on GitHub: &lt;a href="https://github.com/hadley/multidplyr"&gt;https://github.com/hadley/multidplyr&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;According to Hadley Wickham, author of the R package, the speedup, achieved through parallelisation, is visible when there are more than 10 million records or the function performed in &lt;code&gt;do&lt;/code&gt; is particularly heavy.&lt;/p&gt;
+&lt;h4 id="multidplyrinstallation"&gt;multidplyr installation&lt;/h4&gt;
+&lt;p&gt;Before you install &lt;em&gt;multidplyr&lt;/em&gt;, you have to have &lt;em&gt;devtools&lt;/em&gt; package. You can get both using following commands:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;install.packages(&amp;quot;devtools&amp;quot;)
+devtools::install_github(&amp;quot;hadley/multidplyr&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="basicfunctions"&gt;Basic functions&lt;/h4&gt;
+&lt;p&gt;There are two basic functions introduced by the package. First of them is &lt;code&gt;partition&lt;/code&gt; and it divides data into groups which will be processed independently. Thus, in many cases, it can be viewed as a replacement for &lt;code&gt;group_by&lt;/code&gt; function. The second is &lt;code&gt;collect&lt;/code&gt; which joins results produced in parallel into one object. If you are familiar with Spark, you can see the analogy. Below, you can find a simple example of the same code executed sequentially in dplyr and in parallel with multidplyr.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Load packages
+library(dplyr)
+library(multidplyr)
+
+# We will use built-in dataset - airquality
+# dplyr
+airquality %&amp;gt;% group_by(Month) %&amp;gt;% summarize(cnt = n())
+
+# multidplyr
+airquality %&amp;gt;% partition(Month) %&amp;gt;% summarize(cnt = n()) %&amp;gt;% collect()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And the output:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# dplyr
+# A tibble: 5 × 2
+  Month   cnt
+  &amp;lt;int&amp;gt; &amp;lt;int&amp;gt;
+1     5    31
+2     6    30
+3     7    31
+4     8    31
+5     9    30
+
+
+# multidplyr
+# A tibble: 5 × 2
+  Month   cnt
+  &amp;lt;int&amp;gt; &amp;lt;int&amp;gt;
+1     7    31
+2     9    30
+3     5    31
+4     6    30
+5     8    31
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As you can notice, the results are the same, but order. In the first call, data are ordered by the month. While in the parallel version, only the parts which were processed together are ordered - 7, 9 and 5, 6, 8 (note that results can be different; depends on how the data were split).&lt;/p&gt;
+&lt;h4 id="clustermanagement"&gt;Cluster management&lt;/h4&gt;
+&lt;p&gt;If we want to change the number of cores used during computations, we can create our own cluster. Then, we can decide if we want to use it only for the single call (through passing cluster object as the &lt;code&gt;partition&lt;/code&gt; function argument) or as a default cluster.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Creating 4-core cluster
+cluster &amp;lt;- create_cluster(4)
+
+# Using cluster only for a single call
+airquality %&amp;gt;% partition(Month, cluster = cluster) %&amp;gt;% summarize(cnt = n()) %&amp;gt;% collect()
+
+# Setting default cluster
+set_default_cluster(cluster)
+airquality %&amp;gt;% partition(Month) %&amp;gt;% summarize(cnt = n()) %&amp;gt;% collect()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="usersfunctionsandvariables"&gt;User's functions and variables&lt;/h4&gt;
+&lt;p&gt;By default, multidplyr cannot use any user-created functions or variables. When we try to do this, we receive an error.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;four &amp;lt;- function(x) {
+  return(data.frame(a = 4))
+}
+
+one &amp;lt;- 1
+
+# dplyr - using user's function
+airquality %&amp;gt;% group_by(Month) %&amp;gt;% do(four(.))
+
+# dplyr - using user's variable
+airquality %&amp;gt;% group_by(Month) %&amp;gt;% do(data.frame(b=one))
+
+# multidplyr - using user's function
+airquality %&amp;gt;% partition(Month) %&amp;gt;% do(four(.)) %&amp;gt;% collect()
+
+# multidplyr - using user's variable
+airquality %&amp;gt;% partition(Month) %&amp;gt;% do(data.frame(b=one)) %&amp;gt;% collect()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When you try to execute the code above, the dplyr statements will finish successfully in contrary to multidplyr's which return the following errors:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in checkForRemoteErrors(lapply(cl, recvResult)) : 
+  2 nodes produced errors; first error: could not find function &amp;quot;four&amp;quot;
+
+Error in checkForRemoteErrors(lapply(cl, recvResult)) : 
+  2 nodes produced errors; first error: object 'one' not found
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To fix the errors, we have to register function &lt;em&gt;four&lt;/em&gt; and variable &lt;em&gt;one&lt;/em&gt; to make them visible for the cluster. To do this, we will use &lt;code&gt;cluster_assign_value&lt;/code&gt; method which takes three arguments - cluster, symbol name and value. If we have not created our own cluster, we can also retrieve the default one (check code below).&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Create new cluster
+cluster &amp;lt;- create_cluster(4)
+# Or retrieve the default one
+cluster &amp;lt;- get_default_cluster()
+
+# Register function and variable
+cluster_assign_value(cluster, 'four', four)
+cluster_assign_value(cluster, 'one', one)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After registration, we should be able to run the multidplyr's code without any problems. Also, we can check already registered objects with &lt;code&gt;cluster_ls&lt;/code&gt; method, get one of these items using &lt;code&gt;cluster_get&lt;/code&gt; and unregister with &lt;code&gt;cluster_rm&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Check registered items
+cluster_ls(cluster)
+# Get the item
+cluster_get(cluster, 'one')
+# Unregister function and variable
+cluster_rm(cluster, c('four', 'one'))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Also, if you prefer, you can do the same using pipe notation instead passing cluster as the first argument.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Check registered items
+cluster %&amp;gt;% cluster_ls()
+# Get the item
+cluster %&amp;gt;% cluster_get('one')
+# Unregister function and variable
+cluster %&amp;gt;% cluster_rm(c('four', 'one'))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Besides &lt;code&gt;cluster_assign_value&lt;/code&gt;, there are three other methods of registering symbols. Thus, you have a possibility to choose the best one depending on a situation.&lt;br&gt;
+The first of them is &lt;code&gt;cluster_copy&lt;/code&gt; which is the equivalent of &lt;code&gt;cluster_assign_value&lt;/code&gt; with the same name as original the symbol. So if you are not going to use any different name, this is the preferred approach.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Both commands has the same effect
+cluster_copy(cluster, four)
+cluster_assign_value(cluster, &amp;quot;four&amp;quot;, four)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The second of the functions is &lt;code&gt;cluster_assign_expr&lt;/code&gt; which allows us to assign R code to the symbol:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;cluster_assign_expr(cluster, 'random10', rnorm(10))
+cluster_get(cluster, 'random10')
+
+# Output:
+# [[1]]
+#  [1] -1.1242879 -0.5550312  0.6660461  0.3170633 -0.9264522  
+#  [6] 0.4113212  -1.4133881  0.5977884 -1.6699814 -0.2328526
+
+# [[2]]
+#  [1] -1.1242879 -0.5550312  0.6660461  0.3170633 -0.9264522  
+#  [6] 0.4113212  -1.4133881  0.5977884 -1.6699814 -0.2328526
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And the last one is &lt;code&gt;cluster_assign_each&lt;/code&gt;. It is an interesting function which can assign a different value to each cluster node (core) while all of them will have a common symbol. It means that we can use the same piece of code for all of them. In an example, when we want to process files in parallel.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;cluster_assign_each(cluster, 'filename', list('file1.csv', 'file2.csv'))
+cluster_get(cluster, 'filename')
+
+# Output:
+# [[1]]
+# [1] &amp;quot;file1.csv&amp;quot;
+
+# [[2]]
+# [1] &amp;quot;file2.csv&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, I want to add that if we register the same symbol twice, we overwrite the previous value:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;cluster_assign_value(cluster, 'one', 1)
+cluster_get(cluster, 'one')
+
+# Output:
+# [[1]]
+# [1] 1
+
+# [[2]]
+# [1] 1
+
+cluster_assign_value(cluster, 'one', 2)
+cluster_get(cluster, 'one')
+
+# Output:
+# [[1]]
+# [1] 2
+
+# [[2]]
+# [1] 2
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you have any questions, just leave a comment.&lt;/p&gt;
+&lt;/div&gt;</content:encoded></item><item><title>R - Heat maps with ggplot2</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Heat_map"&gt;Heat maps&lt;/a&gt; are a very useful graphical tool to better understand or present data stored in matrix in more accessible form. E.g. they are very helpful during seeking/comparing missing values in time series or checking cross-correlations for large number of financial instruments.&lt;/p&gt;
+&lt;p&gt;Before we present how to plot&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/r-heat-maps-with-ggplot2/</link><guid isPermaLink="false">5a0b698f673a20359e2377e5</guid><category>R</category><category>ggplot2</category><category>data visualization</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Wed, 11 May 2016 18:20:39 GMT</pubDate><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Heat_map"&gt;Heat maps&lt;/a&gt; are a very useful graphical tool to better understand or present data stored in matrix in more accessible form. E.g. they are very helpful during seeking/comparing missing values in time series or checking cross-correlations for large number of financial instruments.&lt;/p&gt;
+&lt;p&gt;Before we present how to plot heat map in ggplot2, we will start with very simple example related with &lt;em&gt;image()&lt;/em&gt; function. First, let's create simple matrix.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;mat &amp;lt;- matrix(c(1, 2, 3, 10, 2, 6), nrow = 2, ncol = 3)
+print(mat)
+
+# Output:
+#      [,1] [,2] [,3]
+# [1,]    1    3    2
+# [2,]    2   10    6
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, we can prepare basic heat map.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;image(mat, xlab = 'Matrix rows', ylab = 'Matrix columns')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And the result of the command above is:&lt;br&gt;
+&lt;img src="http://localhost:2368/content/images/2016/05/basic-heat-map.png" alt="Basic heat map image generated by image() function"&gt;&lt;/p&gt;
+&lt;p&gt;As one can see, the x axis represents rows in matrix. The first row is on the left (the lowest value on the axis), whilst the last row in on the right (analogously - the highest value). The y axis represents columns and first column is on the bottom. And by default, red colour represents the lowest values in our matrix, while the highest are lighter. &lt;em&gt;NAs&lt;/em&gt; remain transparent, so it means that in this case they will be white - like plot background.&lt;/p&gt;
+&lt;p&gt;We can make our plot slightly mode pretty by removing axes:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;image(mat, xlab = 'Matrix rows', ylab = 'Matrix columns', axes = F)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/basic-heat-map-no-axis.png" alt="Basic heat map image with removed axes"&gt;&lt;/p&gt;
+&lt;p&gt;There is also possibility to change default colours by using &lt;em&gt;col&lt;/em&gt; parameter. In example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;image(mat, xlab = 'Matrix rows', ylab = 'Matrix columns', axes = F, col = terrain.colors(100))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/basic-heat-map-terrain.png" alt="Basic heat map without axes and green/terrain colour schema"&gt;&lt;/p&gt;
+&lt;p&gt;The &lt;em&gt;image()&lt;/em&gt; function is very handful for quick plot. However, with ggplot2 we can obtain much nicer results. So let's check how to do it. First, we need three packages. If you do not have them then you need to install &lt;em&gt;ggplot2&lt;/em&gt;, &lt;em&gt;RColorBrewer&lt;/em&gt; and &lt;em&gt;reshape2&lt;/em&gt;. Then you can call:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Import packages
+library(ggplot2)
+library(RColorBrewer)
+library(reshape2)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Before we'll plot heat map in ggplot2, we have to transform our data into melted form with &lt;em&gt;melt&lt;/em&gt; function from &lt;em&gt;reshape2&lt;/em&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;mat.melted &amp;lt;- melt(mat)
+print(mat.melted)
+
+# Output:
+#   Var1 Var2 value
+# 1    1    1     1
+# 2    2    1     2
+# 3    1    2     3
+# 4    2    2    10
+# 5    1    3     2
+# 6    2    3     6
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then we can call:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;ggplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) + geom_tile()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/ggplot-heat-map-1.png" alt="ggplot2 heat map"&gt;&lt;/p&gt;
+&lt;p&gt;As we can see, the numbers on axes in the middle of each tile indicate position in the source matrix. However, if we add dimnames to our matrix then ggplot2 will automatically use these names:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;mat &amp;lt;- matrix(c(1, 2, 3, 10, 2, 6), nrow = 2, ncol = 3, dimnames = list(c('r1', 'r2'), c('c1', 'c2', 'c3')))
+mat.melted &amp;lt;- melt(mat)
+gplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) + geom_tile()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/ggplot-heat-map-2.png" alt="ggplot2 heat map with names"&gt;&lt;/p&gt;
+&lt;p&gt;Next, we can replace our rectangular tiles by squares with &lt;em&gt;coord_equal()&lt;/em&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;ggplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  coord_equal()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/ggplot-heat-map-3.png" alt="ggplot2 heat map with square tiles"&gt;&lt;/p&gt;
+&lt;p&gt;It's often cool feature when our matrix has equal number of columns and rows. Finally, we can also change the colours using &lt;em&gt;RColorBrewer&lt;/em&gt; package.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;hm.palette &amp;lt;- colorRampPalette(rev(brewer.pal(11, 'Spectral')), space='Lab')
+ggplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  coord_equal() +
+  scale_fill_gradientn(colours = hm.palette(100))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/ggplot-heat-map-4.png" alt="ggplot2 heat map with custom colours"&gt;&lt;/p&gt;
+&lt;p&gt;We can control colours with &lt;em&gt;brewer.pal&lt;/em&gt; function from code above. The first parameter means number of colours and depends on chosen palette. The list of available colour sets is described in function's help (&lt;code&gt;?brewer.pal&lt;/code&gt;) and on &lt;a href="http://colorbrewer2.org/"&gt;website&lt;/a&gt;. Below is the another example, this time with sequential palette:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;hm.palette &amp;lt;- colorRampPalette(rev(brewer.pal(9, 'YlOrRd')), space='Lab')
+ggplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  coord_equal() +
+  scale_fill_gradientn(colours = hm.palette(100))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/ggplot-heat-map-5.png" alt="ggplot2 heat map with yellow or red palette"&gt;&lt;/p&gt;
+&lt;p&gt;At the end, we can also overwrite axis labels as well as rotate values on scale. Rotating can be very helpful when dirnames are long and there are many rows. As without it the labels will be impossible to read.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;ggplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  coord_equal() +
+  scale_fill_gradientn(colours = hm.palette(100)) +
+  ylab('Matrix columns') +
+  xlab('Matrix rows') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/ggplot-heat-map-6.png" alt="ggplot2 heat map with labels and text rotating"&gt;&lt;/p&gt;
+&lt;/div&gt;</content:encoded></item><item><title>R - parallel computing in 5 minutes (with foreach and doParallel)</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Parallel computing is easy to use in R thanks to packages like &lt;em&gt;doParallel&lt;/em&gt;. However, before we decide to parallelize our code, still we should remember that there is a trade-off between simplicity and performance. So if your script runs a few seconds, probably it's not worth to bother yourself. Yet&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/r-parallel-computing-in-5-minutes/</link><guid isPermaLink="false">5a0b698f673a20359e2377e4</guid><category>R</category><category>parallel computing</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 11 Jul 2015 13:11:11 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/night-traffic-14939955154Gn.jpg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/night-traffic-14939955154Gn.jpg" alt="R - parallel computing in 5 minutes (with foreach and doParallel)"&gt;&lt;p&gt;Parallel computing is easy to use in R thanks to packages like &lt;em&gt;doParallel&lt;/em&gt;. However, before we decide to parallelize our code, still we should remember that there is a trade-off between simplicity and performance. So if your script runs a few seconds, probably it's not worth to bother yourself. Yet if your analysis are computationally heavy, you can often save hours or even days. In such case, it's reasonable to sacrifice code readability and clear error messages to save time.&lt;/p&gt;
+&lt;p&gt;Let's start from beginning. First, install &lt;em&gt;doParallel&lt;/em&gt; package and load it.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;install.packages('doParallel')
+library(doParallel)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, run a simple and sequential &lt;em&gt;foreach&lt;/em&gt; loop which calculate sum of hyperbolic tangent function results. It's not especially useful, but it will be a good example.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;system.time(foreach(i=1:10000) %do% sum(tanh(1:i)))
+
+# Output:
+#    user  system elapsed 
+#   2.949   0.016   2.968 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, let's change &lt;em&gt;%do%&lt;/em&gt; to &lt;em&gt;%dopar%&lt;/em&gt; and check what will happen.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;system.time(foreach(i=1:10000) %dopar% sum(tanh(1:i)))
+
+# Output:
+#    user  system elapsed 
+#   2.947   0.036   2.988 
+# Warning message:
+# executing %dopar% sequentially: no parallel backend registered 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you run it for the first time, you should see the warning message which indicates that the loop ran sequentially. To execute your code in parallel, beside using &lt;em&gt;dopar&lt;/em&gt;, you have to register parallel backend - don't worry, it's easy.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;registerDoParallel()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Run command above and try one more time parallized version of the loop. You should see that now the execution time is lower. By default, registering backend without any parameters creates 3 workers on Windows and approximately half of the number of cores on Unix systems.&lt;/p&gt;
+&lt;h3 id="parallelbackend"&gt;Parallel backend&lt;/h3&gt;
+&lt;p&gt;Let's explore it futher. The first step will be checking how many workers we have available. Call following function to get the answer.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;getDoParWorkers()
+
+# Output:
+# [1] 4
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, let's try to switch back to sequential execution and check once more the number of workers.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;registerDoSEQ()
+getDoParWorkers()
+
+# Output:
+# [1] 1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, we will register parallel backend once more, but this time we will set number of workers explicitly.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;registerDoParallel(cores=2)
+getDoParWorkers()
+
+# Output:
+# [1] 2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And then, try to use more than we have physical cores.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;registerDoParallel(cores=300)
+getDoParWorkers()
+
+# Output:
+# [1] 300
+
+system.time(foreach(i=1:10000) %dopar% sum(tanh(1:i)))
+# Output:
+#   user  system elapsed 
+#  2.325   6.216   5.725 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As you can see, it is possible to use many more workers than number of cores, but it also increase overhead of dispatching tasks. So in our example, total execution time is much longer than in sequential case.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;doParallel&lt;/em&gt; also allows us to create computational cluster manually, but we have to remember to unregister it, by calling &lt;em&gt;stopCluster&lt;/em&gt; funtion, when we have finished our work.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;cl &amp;lt;- makeCluster(2)
+registerDoParallel(cl)
+system.time(foreach(i=1:10000) %dopar% sum(tanh(1:i)))
+stopCluster(cl)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="functionsandpackages"&gt;Functions and packages&lt;/h3&gt;
+&lt;p&gt;Few weeks ago, I had a problem with &lt;em&gt;foreach&lt;/em&gt; loop because it was not able to see local functions or imported from external packages. The solution, which worked for me, was using additional loop's parameters (&lt;em&gt;.export&lt;/em&gt; and &lt;em&gt;.packages&lt;/em&gt;) and pass the function and package names explicitly.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;results &amp;lt;- foreach(i=1:n, .export=c('function1', 'function2'), .packages='package1') %dopar% {
+  # do something cool
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="mergingresults"&gt;Merging results&lt;/h3&gt;
+&lt;p&gt;This part is not directly related with parallel computing, but it will be useful to know how to merge output from &lt;em&gt;foreach&lt;/em&gt; loop in different ways.&lt;br&gt;
+By default, it returns you a list with outputs from all iterations.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;results = foreach(i=1:10) %dopar% {
+  data.frame(feature=rnorm(10))
+}
+class(results)
+
+# Output:
+# [1] &amp;quot;list&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can overwrite it by setting &lt;em&gt;.combine&lt;/em&gt; parameter. Let's make a data frame which store in each column results from one iteration.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;results = foreach(i=1:10, .combine=data.frame) %dopar% {
+  data.frame(feature=rnorm(10))
+}
+class(results)
+
+# Output:
+# [1] &amp;quot;data.frame&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, we can try to write our own custom function for merging results. In every iteration, we will generate a data frame with two columns, i.e. timestamp and measurement/feature returned by sensor. After going through all iterations, we would like to have single data frame merged by timestamps. First, we will create the merging function and then we will use it.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;merge.by.time &amp;lt;- function(a, b) {
+  merge(a, b, by='timestamp', suffixes=c('', ncol(a)))
+}
+
+results = foreach(i=1:5, .combine=merge.by.time) %dopar% {
+  data.frame(timestamp=sample(1:10), feature=rnorm(10))
+}
+
+print(results)
+
+# Output:
+#    timestamp    feature   feature2   feature3    feature4    feature5
+# 1          1 -0.1655825 -0.9301484 -0.6144039 -0.04826379 -1.14872702
+# 2          2 -1.0214898  0.2888518  0.8086409 -0.51811068 -0.10786999
+# 3          3 -0.9717168  0.8614015  1.6521166 -0.26958848  0.86063073
+# 4          4 -1.8141072 -0.2487387  0.3302528  1.44081105 -0.70726657
+# 5          5  0.6748330 -0.6913867 -1.4586897 -0.40082273 -0.09189869
+# 6          6 -0.3780126  0.1760140  1.0881200 -1.60095458  0.78786617
+# 7          7 -1.0968293  1.4114997  0.1611462  0.29579596 -1.30987061
+# 8          8 -0.9285541 -2.3757749 -0.3329841 -0.64194054 -1.17378147
+# 9          9 -0.9434158  0.9353895  0.9668269 -2.41119024 -0.39902072
+# 10        10  0.4024025 -1.5194827 -0.5828012 -0.49676977 -0.98481906
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content:encoded></item><item><title>Kaggle Otto Group Product Classification Challenge</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Just finished &lt;a href="https://www.kaggle.com/c/otto-group-product-classification-challenge"&gt;Otto competition&lt;/a&gt; on Kaggle in which took a part 3514 teams. Participiants had to classify products to one from nine categories based on data provided by e-commerce company and had 2 months to build their best solutions.&lt;/p&gt;
+&lt;p&gt;I can say proudly that I've deafeated more than 3400 teams&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/kaggle-otto-group-product-classification-challenge/</link><guid isPermaLink="false">5a0b698f673a20359e2377e3</guid><category>Python</category><category>kaggle</category><category>neural network</category><category>random forest</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Tue, 19 May 2015 22:03:51 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/kaggle-gray.svg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/kaggle-gray.svg" alt="Kaggle Otto Group Product Classification Challenge"&gt;&lt;p&gt;Just finished &lt;a href="https://www.kaggle.com/c/otto-group-product-classification-challenge"&gt;Otto competition&lt;/a&gt; on Kaggle in which took a part 3514 teams. Participiants had to classify products to one from nine categories based on data provided by e-commerce company and had 2 months to build their best solutions.&lt;/p&gt;
+&lt;p&gt;I can say proudly that I've deafeated more than 3400 teams and finally finished competition on 66th position. It's great but still there is a lot of things to learn.&lt;/p&gt;
+&lt;p&gt;I would like to shortly present prepared solution. It is not a surprise that my best result was produced by ensemble. So let's start from describing &lt;em&gt;bricks&lt;/em&gt; used to prepare our construction.&lt;/p&gt;
+&lt;h3 id="basemodels"&gt;Base models&lt;/h3&gt;
+&lt;h4 id="xgboost"&gt;XGBoost&lt;/h4&gt;
+&lt;p&gt;It was the first time when I used &lt;a href="https://github.com/dmlc/xgboost"&gt;xgboost&lt;/a&gt;. I'd heard about it before this competition but I've never tried earlier. I've started with version for R but later I've switched to Python to be able to easier integrate all models. It was also the strongest model in my ensemble.&lt;br&gt;
+To tune it I used well known rule of thumb - fit all parameters with small number of trees and higher learning rate and then increase number of trees and decrease learning rate.&lt;br&gt;
+So finally 4800 trees were incorporated.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Results below (as well as for rest of models) contains the best scores for the model from  the particular kind of algorithm family.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Public LB: 0.43184&lt;br&gt;
+Private LB: 0.43290&lt;/p&gt;
+&lt;h4 id="randomforest"&gt;Random Forest&lt;/h4&gt;
+&lt;p&gt;I've found that using 600 trees is enough and allows you achive result with an error around 0.51. But the key part was &lt;a href="http://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibratedClassifierCV.html"&gt;calibration&lt;/a&gt; which allowed to decrease the error up to 0.45. One more thing here which helped to improve results was using stratified cross-validation during calibration instead default CV where data are splitted randomly without preservation class proportions.&lt;/p&gt;
+&lt;p&gt;Public LB: 0.44969&lt;br&gt;
+Private LB: 0.45272&lt;/p&gt;
+&lt;h4 id="neuralnetworks"&gt;Neural Networks&lt;/h4&gt;
+&lt;p&gt;Few different architectures. Some supported by TDIDF, PCA or another features transformation and in some cases by bagging. But all of them used ReLU units and dropout for regularization.&lt;br&gt;
+To prepare all these models I used &lt;a href="http://lasagne.readthedocs.org/en/latest/user/installation.html"&gt;Lasagne&lt;/a&gt;. To speed-up tuning hyper-parameters I've implemented early stopping (I think I removed code for it from sklearn-style implementation which I used as a &lt;em&gt;official&lt;/em&gt; and tuned solution).&lt;/p&gt;
+&lt;p&gt;Public LB: 0.44662&lt;br&gt;
+Private LB: 0.44844&lt;/p&gt;
+&lt;h4 id="svm"&gt;SVM&lt;/h4&gt;
+&lt;p&gt;Slow. Very slow. And it was inviable in terms of invested time and computing power to obtained improvement.&lt;/p&gt;
+&lt;p&gt;Public LB: 0.50267&lt;br&gt;
+Private LB: 0.50186&lt;/p&gt;
+&lt;h4 id="other"&gt;Other&lt;/h4&gt;
+&lt;p&gt;During this competition I've also written Python wrapper for RGF (Regularized Greedy Forest) which alone was strong (approx. 0.46 loss) but it hasn't brought anything new into ensemble.&lt;br&gt;
+I've also tried with linear models but the best one couldn't break 0.53 error.&lt;/p&gt;
+&lt;h3 id="tuning"&gt;Tuning&lt;/h3&gt;
+&lt;p&gt;For most of the algorithms I used &lt;a href="http://jaberg.github.io/hyperopt/"&gt;hyperopt&lt;/a&gt; to tune them automatically. I've found that manual optimization works well and it's much faster then using software for it but sometimes I have to sleep or be at work. Hyperopt doesn't have to.&lt;br&gt;
+However I think it will be nice to explore next time different tools for optimization.&lt;/p&gt;
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2015/May/Rplot01.png" alt="Kaggle Otto Group Product Classification Challenge"&gt;&lt;/p&gt;
+&lt;h3 id="ensembling"&gt;Ensembling&lt;/h3&gt;
+&lt;p&gt;I used weighted average to combine predictions from 8 chosen models. To find right proportion I used 5-fold cross-validation to generate predictions for train set and then &lt;a href="http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.fmin_cobyla.html"&gt;cobyla optimizator&lt;/a&gt; from SciPy as a meta-learner.&lt;/p&gt;
+&lt;h3 id="code"&gt;Code&lt;/h3&gt;
+&lt;p&gt;Whole code to reproduce my solution you can find in GitHub &lt;a href="https://github.com/ahara/kaggle_otto"&gt;repository&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="potentialimprovements"&gt;Potential improvements&lt;/h3&gt;
+&lt;p&gt;During the competition I've tried with more sophisticated meta-learners as well as looking for weights separately for each class for each model. It returned me worse results than simple approach described earlier. However &lt;em&gt;Optimistically Convergent&lt;/em&gt; team &lt;a href="https://www.kaggle.com/c/otto-group-product-classification-challenge/forums/t/14297/share-your-models"&gt;reported&lt;/a&gt; that they used neural network with success as a meta-model. For sure it'd something really worth to try.&lt;/p&gt;
+&lt;/div&gt;</content:encoded></item><item><title>R - devtools and RCurl</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;If you see during devtools (or any other R package) installation on Ubuntu these sort of errors:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;* installing *source* package ‘RCurl’ ...
+** package ‘RCurl’ successfully unpacked and MD5 sums checked
+checking for curl-config... no
+Cannot find curl-config
+ERROR: configuration failed for package ‘RCurl’
+* removing ‘/home/&amp;lt;user&amp;gt;/R/x86_64-pc-linux-gnu-library/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description><link>http://localhost:2368/r-devtools-and-rcurl/</link><guid isPermaLink="false">5a0b698f673a20359e2377e2</guid><category>R</category><category>Ubuntu</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 21 Mar 2015 18:38:33 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/Rlogo-1.svg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/Rlogo-1.svg" alt="R - devtools and RCurl"&gt;&lt;p&gt;If you see during devtools (or any other R package) installation on Ubuntu these sort of errors:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;* installing *source* package ‘RCurl’ ...
+** package ‘RCurl’ successfully unpacked and MD5 sums checked
+checking for curl-config... no
+Cannot find curl-config
+ERROR: configuration failed for package ‘RCurl’
+* removing ‘/home/&amp;lt;user&amp;gt;/R/x86_64-pc-linux-gnu-library/3.0/RCurl’
+Warning in install.packages :
+  installation of package ‘RCurl’ had non-zero exit status
+...
+ERROR: dependency ‘RCurl’ is not available for package ‘httr’
+* removing ‘/home/&amp;lt;user&amp;gt;/R/x86_64-pc-linux-gnu-library/3.0/httr’
+Warning in install.packages :
+  installation of package ‘httr’ had non-zero exit status
+ERROR: dependencies ‘httr’, ‘RCurl’ are not available for package ‘devtools’
+* removing ‘/home/&amp;lt;user&amp;gt;/R/x86_64-pc-linux-gnu-library/3.0/devtools’
+Warning in install.packages :
+  installation of package ‘devtools’ had non-zero exit status
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then you should run following command to resolve it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo apt-get install libcurl4-gnutls-dev
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content:encoded></item><item><title>Ubuntu 14.04 - install OpenCV with CUDA</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Today I'll show you how to compile and install OpenCV with support for Nvidia CUDA technology which will allow you to use GPU to speed up image processing.&lt;br&gt;
+I assume that you already have CUDA toolkit installed. If not there is a very good tutorial prepared by Facebook AI Research&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/</link><guid isPermaLink="false">5a0b698f673a20359e2377e1</guid><category>CUDA</category><category>OpenCV</category><category>Ubuntu</category><category>GPU</category><category>NVIDIA</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 14 Mar 2015 12:07:39 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/GTX_1080_KV.jpg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/GTX_1080_KV.jpg" alt="Ubuntu 14.04 - install OpenCV with CUDA"&gt;&lt;p&gt;Today I'll show you how to compile and install OpenCV with support for Nvidia CUDA technology which will allow you to use GPU to speed up image processing.&lt;br&gt;
+I assume that you already have CUDA toolkit installed. If not there is a very good tutorial prepared by Facebook AI Research (FAIR). Just look at the &lt;em&gt;Install CUDA&lt;/em&gt; section in &lt;a href="https://github.com/facebook/fbcunn/blob/master/INSTALL.md"&gt;FAIR's instruction&lt;/a&gt;.&lt;/p&gt;
+&lt;h4 id="installrequiredpackages"&gt;Install required packages&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo apt-get update
+
+sudo apt-get install libopencv-dev build-essential checkinstall cmake pkg-config yasm libtiff4-dev libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils
+
+sudo add-apt-repository ppa:jon-severinsson/ffmpeg
+sudo apt-get update
+sudo apt-get install ffmpeg
+sudo apt-get install frei0r-plugins
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="cloneopencvsrepository"&gt;Clone OpenCV's repository&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;mkdir OpenCV
+cd OpenCV
+git clone https://github.com/Itseez/opencv.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="buildandinstallopencv"&gt;Build and install OpenCV&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;cd opencv
+mkdir release
+cd release
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 -D WITH_CUBLAS=1 ..
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Check cmake's output and make sure that CUDA and CUBLAS are enabled:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;--     Use Cuda:                    YES (ver 6.5)
+--     Use OpenCL:                  YES
+-- 
+--   NVIDIA CUDA
+--     Use CUFFT:                   YES
+--     Use CUBLAS:                  YES
+--     USE NVCUVID:                 NO
+--     NVIDIA GPU arch:             11 12 13 20 21 30 35
+--     NVIDIA PTX archs:            30
+--     Use fast math:               YES
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If everything is correct you can install OpenCV:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;make
+sudo make install
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="configurelibrarysearchpath"&gt;Configure library search path&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;echo '/usr/local/lib' | sudo tee -a /etc/ld.so.conf.d/opencv.conf
+sudo ldconfig
+printf '# OpenCV\nPKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig\nexport PKG_CONFIG_PATH\n' &amp;gt;&amp;gt; ~/.bashrc
+source ~/.bashrc
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h4 id="usedresources"&gt;Used resources:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://www.bogotobogo.com/OpenCV/opencv_3_tutorial_ubuntu14_install_cmake.php"&gt;bogotobogo&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://ubuntuforums.org/showthread.php?t=2219550"&gt;forum Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;</content:encoded></item><item><title>Object serialization in R</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Saving and restoring objects in R is simple and sometimes it might be very helpful. Especially if you want to keep results from a very time-consuming analysis which obviously you don't want to repeat.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Serialize
+saveRDS(results, 'results.obj')
+# Deserialize object
+restored_results &amp;lt;- readRDS('results.obj')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</description><link>http://localhost:2368/object-serialization-in-r/</link><guid isPermaLink="false">5a0b698f673a20359e2377e0</guid><category>R</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Wed, 11 Mar 2015 16:14:41 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/Rlogo.svg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/Rlogo.svg" alt="Object serialization in R"&gt;&lt;p&gt;Saving and restoring objects in R is simple and sometimes it might be very helpful. Especially if you want to keep results from a very time-consuming analysis which obviously you don't want to repeat.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-r"&gt;# Serialize
+saveRDS(results, 'results.obj')
+# Deserialize object
+restored_results &amp;lt;- readRDS('results.obj')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content:encoded></item><item><title>Extreme Learning Machine for digits recognition</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;General idea behind Extreme Learning Machines (ELMs) is transforming features into higher-dimensional space and using linear model to solve problem. More detailed information about ELMs you can find &lt;a href="http://www.ntu.edu.sg/home/egbhuang/"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Although Extreme Learning Machines are far behind Deep Learning methods (at least according to popular CV benchmarks) they have substantial advantage&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/extreme-learning-machine-for-digits-recognition/</link><guid isPermaLink="false">5a0b698f673a20359e2377df</guid><category>ELM</category><category>MNIST</category><category>Python</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 28 Feb 2015 15:01:26 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/hi-tech-abstract-engine-1.jpg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/hi-tech-abstract-engine-1.jpg" alt="Extreme Learning Machine for digits recognition"&gt;&lt;p&gt;General idea behind Extreme Learning Machines (ELMs) is transforming features into higher-dimensional space and using linear model to solve problem. More detailed information about ELMs you can find &lt;a href="http://www.ntu.edu.sg/home/egbhuang/"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Although Extreme Learning Machines are far behind Deep Learning methods (at least according to popular CV benchmarks) they have substantial advantage - ability to learn fast caused by removing iterative training. Also as you can &lt;a href="http://mlwave.com/online-learning-perceptron/"&gt;read on MLWave&lt;/a&gt; principles on which ELM bases can be very powerful.&lt;/p&gt;
+&lt;p&gt;Here I'll show you how to start to work with ELMs in Python. We'll write a simple digit recognizer.&lt;/p&gt;
+&lt;h3 id="dataset"&gt;Data set&lt;/h3&gt;
+&lt;p&gt;For an experiment we will use &lt;a href="http://yann.lecun.com/exdb/mnist/"&gt;MNIST&lt;/a&gt; data set prepared for Theano's Deep Learning tutorial - as it is in Python-friendly format. Here is the link: &lt;a href="http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz"&gt;http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;In the archive you can find &lt;em&gt;mnist.pkl&lt;/em&gt; file which contains serialized tuple.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-language-python"&gt;(train_obj, validation_obj, test_obj)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Each of these objects is also a tuple in following format:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-language-python"&gt;(inputs, labels)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Where &lt;em&gt;inputs&lt;/em&gt; object is a matrix (2d-numpy's array) with every sample in separated row and the &lt;em&gt;labels&lt;/em&gt; object is a list.&lt;/p&gt;
+&lt;h3 id="code"&gt;Code&lt;/h3&gt;
+&lt;p&gt;We will use ELM's implementation already available on GitHub. So you need to clone the repository: &lt;a href="https://github.com/dclambert/Python-ELM"&gt;https://github.com/dclambert/Python-ELM&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Then you can try following code which should achieve 97.33% accuracy on validation set and 97.02% on test set. On my machine learning and evaluation took around 11 minutes. Also if you have less than 8GB of memory it's a good idea to decrease number of hidden units for ELM.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-language-python"&gt;import cPickle
+import numpy as np
+from elm import ELMClassifier
+from sklearn import linear_model
+
+
+def load_mnist(path='../Data/mnist.pkl'):
+    with open(path, 'rb') as f:
+        return cPickle.load(f)
+
+
+def get_datasets(data):
+    _train_x, _train_y = data[0][0], np.array(data[0][1]).reshape(len(data[0][1]), 1)
+    _val_x, _val_y = data[1][0], np.array(data[1][1]).reshape(len(data[1][1]), 1)
+    _test_x, _test_y = data[2][0], np.array(data[2][1]).reshape(len(data[2][1]), 1)
+
+    return _train_x, _train_y, _val_x, _val_y, _test_x, _test_y
+
+
+if __name__ == '__main__':
+    # Load data sets
+    train_x, train_y, val_x, val_y, test_x, test_y = get_datasets(load_mnist())
+    # Build ELM
+    cls = ELMClassifier(n_hidden=7000,
+                        alpha=0.93,
+                        activation_func='multiquadric',
+                        regressor=linear_model.Ridge(),
+                        random_state=21398023)
+    cls.fit(train_x, train_y)
+    # Evaluate model
+    print 'Validation error:', cls.score(val_x, val_y)
+    print 'Test error:', cls.score(test_x, test_y)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Code is available on GitHub (&lt;a href="https://github.com/ahara/blog/blob/master/elm_mnist/elm_mnist.py"&gt;link&lt;/a&gt;). To improve the solution you can use &lt;em&gt;gzip&lt;/em&gt; module to read &lt;em&gt;pkl&lt;/em&gt; file directly from archive.&lt;/p&gt;
+&lt;/div&gt;</content:encoded></item><item><title>Torch7 - Reading CSV into tensor</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with &lt;code&gt;csvigo&lt;/code&gt; module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/torch7-reading-csv-into-tensor/</link><guid isPermaLink="false">5a0b698f673a20359e2377de</guid><category>Torch</category><category>LUA</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Fri, 06 Feb 2015 17:41:45 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/torch-tw.png" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/torch-tw.png" alt="Torch7 - Reading CSV into tensor"&gt;&lt;p&gt;Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with &lt;code&gt;csvigo&lt;/code&gt; module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to train model were too big. Yes, csvigo wasn't able to work with 350MB file and returned nice error: &lt;em&gt;not enough memory&lt;/em&gt;. According to thread in Google Groups rebuilding torch with different flags could help.&lt;/p&gt;
+&lt;p&gt;So I decided to use lower level mechanism - reading CSV as a normal file - line by line. Core part of code looked like:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-lua"&gt;-- Read data from CSV to tensor
+local csvFile = io.open(filePath, 'r')
+local header = csvFile:read()
+
+local data = torch.Tensor(ROWS, COLS)
+
+local i = 0
+for line in csvFile:lines('*l') do
+  i = i + 1
+  local l = line:split(',')
+  for key, val in ipairs(l) do
+    data[i][key] = val
+  end
+end
+
+csvFile:close()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you are looking for a whole script, check &lt;a href="https://github.com/ahara/blog/blob/master/torch_read_csv_into_tensor/read_csv.lua"&gt;GitHub repository&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;</content:encoded></item></channel></rss>

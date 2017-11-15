@@ -1,0 +1,424 @@
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Ubuntu 14.04 - install OpenCV with CUDA</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../assets/built/screen.css?v=2d7a0246b0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prism.css?v=2d7a0246b0"> 
+
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="index.html">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <link rel="amphtml" href="amp/index.html">
+    
+    <meta property="og:site_name" content="aicry">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Ubuntu 14.04 - install OpenCV with CUDA">
+    <meta property="og:description" content="Today I'll show you how to compile and install OpenCV with support for Nvidia CUDA technology which will allow you to use GPU to speed up image processing. I assume that you already have CUDA toolkit installed. If not there is a very good tutorial prepared by Facebook AI Research">
+    <meta property="og:url" content="http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2017/11/GTX_1080_KV.jpg">
+    <meta property="article:published_time" content="2015-03-14T12:07:39.000Z">
+    <meta property="article:modified_time" content="2017-11-15T18:06:21.000Z">
+    <meta property="article:tag" content="CUDA">
+    <meta property="article:tag" content="OpenCV">
+    <meta property="article:tag" content="Ubuntu">
+    <meta property="article:tag" content="GPU">
+    <meta property="article:tag" content="NVIDIA">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ubuntu 14.04 - install OpenCV with CUDA">
+    <meta name="twitter:description" content="Today I'll show you how to compile and install OpenCV with support for Nvidia CUDA technology which will allow you to use GPU to speed up image processing. I assume that you already have CUDA toolkit installed. If not there is a very good tutorial prepared by Facebook AI Research">
+    <meta name="twitter:url" content="http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2017/11/GTX_1080_KV.jpg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Adam Harasimowicz">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="CUDA, OpenCV, Ubuntu, GPU, NVIDIA">
+    <meta name="twitter:site" content="@adharasim">
+    <meta name="twitter:creator" content="@adharasim">
+    <meta property="og:image:width" content="700">
+    <meta property="og:image:height" content="525">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "aicry",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Adam Harasimowicz",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2017/11/pict_bw_small-1.jpg",
+            "width": 96,
+            "height": 96
+        },
+        "url": "http://localhost:2368/author/adam/",
+        "sameAs": [
+            "https://twitter.com/adharasim"
+        ]
+    },
+    "headline": "Ubuntu 14.04 - install OpenCV with CUDA",
+    "url": "http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/",
+    "datePublished": "2015-03-14T12:07:39.000Z",
+    "dateModified": "2017-11-15T18:06:21.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:2368/content/images/2017/11/GTX_1080_KV.jpg",
+        "width": 700,
+        "height": 525
+    },
+    "keywords": "CUDA, OpenCV, Ubuntu, GPU, NVIDIA",
+    "description": "Today I&#x27;ll show you how to compile and install OpenCV with support for Nvidia CUDA technology which will allow you to use GPU to speed up image processing. I assume that you already have CUDA toolkit installed. If not there is a very good tutorial prepared by Facebook AI Research",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <script type="text/javascript" src="../public/ghost-sdk.js?v=2d7a0246b0"></script>
+<script type="text/javascript">
+ghost.init({
+	clientId: "ghost-frontend",
+	clientSecret: "1ea80d921ad5"
+});
+</script>
+    <meta name="generator" content="Ghost 1.17">
+    <link rel="alternate" type="application/rss+xml" title="aicry" href="../rss/index.html">
+    <!-- Google Analytics -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-59382220-1', 'auto');
+	  ga('require', 'linkid');
+	  ga('send', 'pageview');
+	</script>
+
+</head>
+<body class="post-template tag-cuda tag-opencv tag-ubuntu tag-gpu tag-nvidia">
+
+    <div class="site-wrapper">
+
+        
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+                <a class="site-nav-logo" href="../">aicry</a>
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="../">Home</a></li>
+</ul>
+
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+                <a class="social-link social-link-tw" href="https://twitter.com/adharasim" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"></path></svg>
+</a>
+        </div>
+            <a class="rss-button" href="http://cloud.feedly.com/#subscription/feed/http://localhost:2368/rss/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"></circle><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"></path></svg>
+</a>
+    </div>
+</nav>
+    </div>
+</header>
+
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full post tag-cuda tag-opencv tag-ubuntu tag-gpu tag-nvidia ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="2015-03-14">14 March 2015</time>
+                        <span class="date-divider">/</span> <a href="../tag/cuda/">CUDA</a>
+                </section>
+                <h1 class="post-full-title">Ubuntu 14.04 - install OpenCV with CUDA</h1>
+            </header>
+
+            <figure class="post-full-image" style="background-image: url(../content/images/2017/11/GTX_1080_KV.jpg)">
+            </figure>
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown"><p>Today I'll show you how to compile and install OpenCV with support for Nvidia CUDA technology which will allow you to use GPU to speed up image processing.<br>
+I assume that you already have CUDA toolkit installed. If not there is a very good tutorial prepared by Facebook AI Research (FAIR). Just look at the <em>Install CUDA</em> section in <a href="https://github.com/facebook/fbcunn/blob/master/INSTALL.md">FAIR's instruction</a>.</p>
+<h4 id="installrequiredpackages">Install required packages</h4>
+<pre><code class="language-bash">sudo apt-get update
+
+sudo apt-get install libopencv-dev build-essential checkinstall cmake pkg-config yasm libtiff4-dev libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils
+
+sudo add-apt-repository ppa:jon-severinsson/ffmpeg
+sudo apt-get update
+sudo apt-get install ffmpeg
+sudo apt-get install frei0r-plugins
+</code></pre>
+<h4 id="cloneopencvsrepository">Clone OpenCV's repository</h4>
+<pre><code class="language-bash">mkdir OpenCV
+cd OpenCV
+git clone https://github.com/Itseez/opencv.git
+</code></pre>
+<h4 id="buildandinstallopencv">Build and install OpenCV</h4>
+<pre><code class="language-bash">cd opencv
+mkdir release
+cd release
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 -D WITH_CUBLAS=1 ..
+</code></pre>
+<p>Check cmake's output and make sure that CUDA and CUBLAS are enabled:</p>
+<pre><code>--     Use Cuda:                    YES (ver 6.5)
+--     Use OpenCL:                  YES
+-- 
+--   NVIDIA CUDA
+--     Use CUFFT:                   YES
+--     Use CUBLAS:                  YES
+--     USE NVCUVID:                 NO
+--     NVIDIA GPU arch:             11 12 13 20 21 30 35
+--     NVIDIA PTX archs:            30
+--     Use fast math:               YES
+</code></pre>
+<p>If everything is correct you can install OpenCV:</p>
+<pre><code class="language-bash">make
+sudo make install
+</code></pre>
+<h4 id="configurelibrarysearchpath">Configure library search path</h4>
+<pre><code class="language-bash">echo '/usr/local/lib' | sudo tee -a /etc/ld.so.conf.d/opencv.conf
+sudo ldconfig
+printf '# OpenCV\nPKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig\nexport PKG_CONFIG_PATH\n' &gt;&gt; ~/.bashrc
+source ~/.bashrc
+</code></pre>
+<hr>
+<h4 id="usedresources">Used resources:</h4>
+<ul>
+<li><a href="http://www.bogotobogo.com/OpenCV/opencv_3_tutorial_ubuntu14_install_cmake.php">bogotobogo</a></li>
+<li><a href="http://ubuntuforums.org/showthread.php?t=2219550">forum Ubuntu</a></li>
+</ul>
+</div>
+            </section>
+
+
+            <footer class="post-full-footer">
+
+                <section class="author-card">
+                        <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+                    <section class="author-card-content">
+                        <h4 class="author-card-name"><a href="../author/adam/">Adam Harasimowicz</a></h4>
+                            <p>Read <a href="../author/adam/">more posts</a> by this author.</p>
+                    </section>
+                </section>
+                <div class="post-full-footer-right">
+                    <a class="author-card-button" href="../author/adam/">Read More</a>
+                </div>
+
+            </footer>
+
+
+            <section class="post-full-comments">
+                <div id="disqus_thread"></div>
+                
+                <script>
+                    var disqus_config = function () {
+                        this.page.url = 'http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/';
+                        this.page.identifier = '5';
+                    };
+                    (function() {
+                        var d = document, s = d.createElement('script');
+                        s.src = 'https://aicry.disqus.com/embed.js';
+                        s.setAttribute('data-timestamp', +new Date());
+                        (d.head || d.body).appendChild(s);
+                    })();
+                </script>
+            </section>
+
+        </article>
+
+    </div>
+</main>
+
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+
+                <article class="post-card post tag-r tag-ubuntu">
+        <a class="post-card-image-link" href="../r-devtools-and-rcurl/">
+            <div class="post-card-image" style="background-image: url(../content/images/2017/11/Rlogo-1.svg)"></div>
+        </a>
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="../r-devtools-and-rcurl/">
+            <header class="post-card-header">
+                    <span class="post-card-tags">R</span>
+                <h2 class="post-card-title">R - devtools and RCurl</h2>
+            </header>
+            <section class="post-card-excerpt">
+                <p>If you see during devtools (or any other R package) installation on Ubuntu these sort of errors: * installing *source* package ‘RCurl’ ... ** package ‘RCurl’ successfully unpacked and MD5 sums checked checking for curl-config... no</p>
+            </section>
+        </a>
+        <footer class="post-card-meta">
+                <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+            <span class="post-card-author"><a href="../author/adam/">Adam Harasimowicz</a></span>
+        </footer>
+    </div>
+</article>
+
+                <article class="post-card post tag-r">
+        <a class="post-card-image-link" href="../object-serialization-in-r/">
+            <div class="post-card-image" style="background-image: url(../content/images/2017/11/Rlogo.svg)"></div>
+        </a>
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="../object-serialization-in-r/">
+            <header class="post-card-header">
+                    <span class="post-card-tags">R</span>
+                <h2 class="post-card-title">Object serialization in R</h2>
+            </header>
+            <section class="post-card-excerpt">
+                <p>Saving and restoring objects in R is simple and sometimes it might be very helpful. Especially if you want to keep results from a very time-consuming analysis which obviously you don't want to</p>
+            </section>
+        </a>
+        <footer class="post-card-meta">
+                <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+            <span class="post-card-author"><a href="../author/adam/">Adam Harasimowicz</a></span>
+        </footer>
+    </div>
+</article>
+
+        </div>
+    </div>
+</aside>
+
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="../">
+            <span>aicry</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">—</span>
+    <div class="floating-header-title">Ubuntu 14.04 - install OpenCV with CUDA</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"></path>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Ubuntu%2014.04%20-%20install%20OpenCV%20with%20CUDA&amp;url=http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/" onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"></path></svg>
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/ubuntu-14-04-install-opencv-with-cuda/" onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"></path></svg>
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+
+
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="../">aicry</a> © 2017</section>
+                <nav class="site-footer-nav">
+                    <a href="../">Latest Posts</a>
+                    
+                    <a href="https://twitter.com/adharasim" target="_blank" rel="noopener">Twitter</a>
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=2d7a0246b0"></script>
+
+
+    <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+
+    
+
+    <script type="text/javascript" src="../assets/js/prism.js?v=2d7a0246b0"></script>
+
+</body>

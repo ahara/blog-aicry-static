@@ -1,0 +1,425 @@
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Kaggle Otto Group Product Classification Challenge</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../assets/built/screen.css?v=2d7a0246b0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prism.css?v=2d7a0246b0"> 
+
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="index.html">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <link rel="amphtml" href="amp/index.html">
+    
+    <meta property="og:site_name" content="aicry">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Kaggle Otto Group Product Classification Challenge">
+    <meta property="og:description" content="Just finished Otto competition on Kaggle in which took a part 3514 teams. Participiants had to classify products to one from nine categories based on data provided by e-commerce company and had 2 months to build their best solutions. I can say proudly that I've deafeated more than 3400 teams">
+    <meta property="og:url" content="http://localhost:2368/kaggle-otto-group-product-classification-challenge/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2017/11/kaggle-gray.svg">
+    <meta property="article:published_time" content="2015-05-19T22:03:51.000Z">
+    <meta property="article:modified_time" content="2017-11-15T17:58:50.000Z">
+    <meta property="article:tag" content="Python">
+    <meta property="article:tag" content="kaggle">
+    <meta property="article:tag" content="neural network">
+    <meta property="article:tag" content="random forest">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kaggle Otto Group Product Classification Challenge">
+    <meta name="twitter:description" content="Just finished Otto competition on Kaggle in which took a part 3514 teams. Participiants had to classify products to one from nine categories based on data provided by e-commerce company and had 2 months to build their best solutions. I can say proudly that I've deafeated more than 3400 teams">
+    <meta name="twitter:url" content="http://localhost:2368/kaggle-otto-group-product-classification-challenge/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2017/11/kaggle-gray.svg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Adam Harasimowicz">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="Python, kaggle, neural network, random forest">
+    <meta name="twitter:site" content="@adharasim">
+    <meta name="twitter:creator" content="@adharasim">
+    <meta property="og:image:width" content="352">
+    <meta property="og:image:height" content="160">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "aicry",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Adam Harasimowicz",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2017/11/pict_bw_small-1.jpg",
+            "width": 96,
+            "height": 96
+        },
+        "url": "http://localhost:2368/author/adam/",
+        "sameAs": [
+            "https://twitter.com/adharasim"
+        ]
+    },
+    "headline": "Kaggle Otto Group Product Classification Challenge",
+    "url": "http://localhost:2368/kaggle-otto-group-product-classification-challenge/",
+    "datePublished": "2015-05-19T22:03:51.000Z",
+    "dateModified": "2017-11-15T17:58:50.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:2368/content/images/2017/11/kaggle-gray.svg",
+        "width": 352,
+        "height": 160
+    },
+    "keywords": "Python, kaggle, neural network, random forest",
+    "description": "Just finished Otto competition on Kaggle in which took a part 3514 teams. Participiants had to classify products to one from nine categories based on data provided by e-commerce company and had 2 months to build their best solutions. I can say proudly that I&#x27;ve deafeated more than 3400 teams",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <script type="text/javascript" src="../public/ghost-sdk.js?v=2d7a0246b0"></script>
+<script type="text/javascript">
+ghost.init({
+	clientId: "ghost-frontend",
+	clientSecret: "1ea80d921ad5"
+});
+</script>
+    <meta name="generator" content="Ghost 1.17">
+    <link rel="alternate" type="application/rss+xml" title="aicry" href="../rss/index.html">
+    <!-- Google Analytics -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-59382220-1', 'auto');
+	  ga('require', 'linkid');
+	  ga('send', 'pageview');
+	</script>
+
+</head>
+<body class="post-template tag-python tag-kaggle tag-neural-network tag-random-forest">
+
+    <div class="site-wrapper">
+
+        
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+                <a class="site-nav-logo" href="../">aicry</a>
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="../">Home</a></li>
+</ul>
+
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+                <a class="social-link social-link-tw" href="https://twitter.com/adharasim" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"></path></svg>
+</a>
+        </div>
+            <a class="rss-button" href="http://cloud.feedly.com/#subscription/feed/http://localhost:2368/rss/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"></circle><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"></path></svg>
+</a>
+    </div>
+</nav>
+    </div>
+</header>
+
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full post tag-python tag-kaggle tag-neural-network tag-random-forest ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="2015-05-19">19 May 2015</time>
+                        <span class="date-divider">/</span> <a href="../tag/python/">Python</a>
+                </section>
+                <h1 class="post-full-title">Kaggle Otto Group Product Classification Challenge</h1>
+            </header>
+
+            <figure class="post-full-image" style="background-image: url(../content/images/2017/11/kaggle-gray.svg)">
+            </figure>
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown"><p>Just finished <a href="https://www.kaggle.com/c/otto-group-product-classification-challenge">Otto competition</a> on Kaggle in which took a part 3514 teams. Participiants had to classify products to one from nine categories based on data provided by e-commerce company and had 2 months to build their best solutions.</p>
+<p>I can say proudly that I've deafeated more than 3400 teams and finally finished competition on 66th position. It's great but still there is a lot of things to learn.</p>
+<p>I would like to shortly present prepared solution. It is not a surprise that my best result was produced by ensemble. So let's start from describing <em>bricks</em> used to prepare our construction.</p>
+<h3 id="basemodels">Base models</h3>
+<h4 id="xgboost">XGBoost</h4>
+<p>It was the first time when I used <a href="https://github.com/dmlc/xgboost">xgboost</a>. I'd heard about it before this competition but I've never tried earlier. I've started with version for R but later I've switched to Python to be able to easier integrate all models. It was also the strongest model in my ensemble.<br>
+To tune it I used well known rule of thumb - fit all parameters with small number of trees and higher learning rate and then increase number of trees and decrease learning rate.<br>
+So finally 4800 trees were incorporated.</p>
+<p><em>Results below (as well as for rest of models) contains the best scores for the model from  the particular kind of algorithm family.</em></p>
+<p>Public LB: 0.43184<br>
+Private LB: 0.43290</p>
+<h4 id="randomforest">Random Forest</h4>
+<p>I've found that using 600 trees is enough and allows you achive result with an error around 0.51. But the key part was <a href="http://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibratedClassifierCV.html">calibration</a> which allowed to decrease the error up to 0.45. One more thing here which helped to improve results was using stratified cross-validation during calibration instead default CV where data are splitted randomly without preservation class proportions.</p>
+<p>Public LB: 0.44969<br>
+Private LB: 0.45272</p>
+<h4 id="neuralnetworks">Neural Networks</h4>
+<p>Few different architectures. Some supported by TDIDF, PCA or another features transformation and in some cases by bagging. But all of them used ReLU units and dropout for regularization.<br>
+To prepare all these models I used <a href="http://lasagne.readthedocs.org/en/latest/user/installation.html">Lasagne</a>. To speed-up tuning hyper-parameters I've implemented early stopping (I think I removed code for it from sklearn-style implementation which I used as a <em>official</em> and tuned solution).</p>
+<p>Public LB: 0.44662<br>
+Private LB: 0.44844</p>
+<h4 id="svm">SVM</h4>
+<p>Slow. Very slow. And it was inviable in terms of invested time and computing power to obtained improvement.</p>
+<p>Public LB: 0.50267<br>
+Private LB: 0.50186</p>
+<h4 id="other">Other</h4>
+<p>During this competition I've also written Python wrapper for RGF (Regularized Greedy Forest) which alone was strong (approx. 0.46 loss) but it hasn't brought anything new into ensemble.<br>
+I've also tried with linear models but the best one couldn't break 0.53 error.</p>
+<h3 id="tuning">Tuning</h3>
+<p>For most of the algorithms I used <a href="http://jaberg.github.io/hyperopt/">hyperopt</a> to tune them automatically. I've found that manual optimization works well and it's much faster then using software for it but sometimes I have to sleep or be at work. Hyperopt doesn't have to.<br>
+However I think it will be nice to explore next time different tools for optimization.</p>
+<p><img src="../content/images/2015/May/Rplot01.png" alt="Weights in ensemble per algorithms family"></p>
+<h3 id="ensembling">Ensembling</h3>
+<p>I used weighted average to combine predictions from 8 chosen models. To find right proportion I used 5-fold cross-validation to generate predictions for train set and then <a href="http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.fmin_cobyla.html">cobyla optimizator</a> from SciPy as a meta-learner.</p>
+<h3 id="code">Code</h3>
+<p>Whole code to reproduce my solution you can find in GitHub <a href="https://github.com/ahara/kaggle_otto">repository</a>.</p>
+<h3 id="potentialimprovements">Potential improvements</h3>
+<p>During the competition I've tried with more sophisticated meta-learners as well as looking for weights separately for each class for each model. It returned me worse results than simple approach described earlier. However <em>Optimistically Convergent</em> team <a href="https://www.kaggle.com/c/otto-group-product-classification-challenge/forums/t/14297/share-your-models">reported</a> that they used neural network with success as a meta-model. For sure it'd something really worth to try.</p>
+</div>
+            </section>
+
+
+            <footer class="post-full-footer">
+
+                <section class="author-card">
+                        <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+                    <section class="author-card-content">
+                        <h4 class="author-card-name"><a href="../author/adam/">Adam Harasimowicz</a></h4>
+                            <p>Read <a href="../author/adam/">more posts</a> by this author.</p>
+                    </section>
+                </section>
+                <div class="post-full-footer-right">
+                    <a class="author-card-button" href="../author/adam/">Read More</a>
+                </div>
+
+            </footer>
+
+
+            <section class="post-full-comments">
+                <div id="disqus_thread"></div>
+                
+                <script>
+                    var disqus_config = function () {
+                        this.page.url = 'http://localhost:2368/kaggle-otto-group-product-classification-challenge/';
+                        this.page.identifier = '7';
+                    };
+                    (function() {
+                        var d = document, s = d.createElement('script');
+                        s.src = 'https://aicry.disqus.com/embed.js';
+                        s.setAttribute('data-timestamp', +new Date());
+                        (d.head || d.body).appendChild(s);
+                    })();
+                </script>
+            </section>
+
+        </article>
+
+    </div>
+</main>
+
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+                <article class="read-next-card" style="background-image: url(../content/images/2017/11/blue_rays.jpg)">
+                    <header class="read-next-card-header">
+                        <small class="read-next-card-header-sitetitle">— aicry —</small>
+                        <h3 class="read-next-card-header-title"><a href="../tag/python/">Python</a></h3>
+                    </header>
+                    <div class="read-next-divider"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><path d="M13 14.5s2 3 5 3 5.5-2.463 5.5-5.5S21 6.5 18 6.5c-5 0-7 11-12 11C2.962 17.5.5 15.037.5 12S3 6.5 6 6.5s4.5 3.5 4.5 3.5"></path></svg>
+</div>
+                    <div class="read-next-card-content">
+                        <ul>
+                            <li><a href="../extreme-learning-machine-for-digits-recognition/">Extreme Learning Machine for digits recognition</a></li>
+                        </ul>
+                    </div>
+                    <footer class="read-next-card-footer">
+                        <a href="../tag/python/">1 post →</a>
+                    </footer>
+                </article>
+
+                <article class="post-card post tag-r tag-parallel-computing">
+        <a class="post-card-image-link" href="../r-parallel-computing-in-5-minutes/">
+            <div class="post-card-image" style="background-image: url(../content/images/2017/11/night-traffic-14939955154Gn.jpg)"></div>
+        </a>
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="../r-parallel-computing-in-5-minutes/">
+            <header class="post-card-header">
+                    <span class="post-card-tags">R</span>
+                <h2 class="post-card-title">R - parallel computing in 5 minutes (with foreach and doParallel)</h2>
+            </header>
+            <section class="post-card-excerpt">
+                <p>Parallel computing is easy to use in R thanks to packages like doParallel. However, before we decide to parallelize our code, still we should remember that there is a trade-off between simplicity and</p>
+            </section>
+        </a>
+        <footer class="post-card-meta">
+                <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+            <span class="post-card-author"><a href="../author/adam/">Adam Harasimowicz</a></span>
+        </footer>
+    </div>
+</article>
+
+                <article class="post-card post tag-r tag-ubuntu">
+        <a class="post-card-image-link" href="../r-devtools-and-rcurl/">
+            <div class="post-card-image" style="background-image: url(../content/images/2017/11/Rlogo-1.svg)"></div>
+        </a>
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="../r-devtools-and-rcurl/">
+            <header class="post-card-header">
+                    <span class="post-card-tags">R</span>
+                <h2 class="post-card-title">R - devtools and RCurl</h2>
+            </header>
+            <section class="post-card-excerpt">
+                <p>If you see during devtools (or any other R package) installation on Ubuntu these sort of errors: * installing *source* package ‘RCurl’ ... ** package ‘RCurl’ successfully unpacked and MD5 sums checked checking for curl-config... no</p>
+            </section>
+        </a>
+        <footer class="post-card-meta">
+                <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+            <span class="post-card-author"><a href="../author/adam/">Adam Harasimowicz</a></span>
+        </footer>
+    </div>
+</article>
+
+        </div>
+    </div>
+</aside>
+
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="../">
+            <span>aicry</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">—</span>
+    <div class="floating-header-title">Kaggle Otto Group Product Classification Challenge</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"></path>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Kaggle%20Otto%20Group%20Product%20Classification%20Challenge&amp;url=http://localhost:2368/kaggle-otto-group-product-classification-challenge/" onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"></path></svg>
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/kaggle-otto-group-product-classification-challenge/" onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"></path></svg>
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+
+
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="../">aicry</a> © 2017</section>
+                <nav class="site-footer-nav">
+                    <a href="../">Latest Posts</a>
+                    
+                    <a href="https://twitter.com/adharasim" target="_blank" rel="noopener">Twitter</a>
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=2d7a0246b0"></script>
+
+
+    <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+
+    
+
+    <script type="text/javascript" src="../assets/js/prism.js?v=2d7a0246b0"></script>
+
+</body>

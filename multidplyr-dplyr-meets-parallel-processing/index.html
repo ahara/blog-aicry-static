@@ -1,0 +1,530 @@
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>multidplyr - dplyr meets parallel processing</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../assets/built/screen.css?v=2d7a0246b0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prism.css?v=2d7a0246b0"> 
+
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="index.html">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <link rel="amphtml" href="amp/index.html">
+    
+    <meta property="og:site_name" content="aicry">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="multidplyr - dplyr meets parallel processing">
+    <meta property="og:description" content="Note: I assume that you are familiar with dplyr. If not, I suggest using first the following tutorial: https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html. Intro dplyr is one of my favourite R packages for data manipulation. It's extremely handy, easy to start and also very elegant">
+    <meta property="og:url" content="http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg">
+    <meta property="article:published_time" content="2017-03-08T18:14:07.000Z">
+    <meta property="article:modified_time" content="2017-11-15T17:25:46.000Z">
+    <meta property="article:tag" content="R">
+    <meta property="article:tag" content="parallel computing">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="multidplyr - dplyr meets parallel processing">
+    <meta name="twitter:description" content="Note: I assume that you are familiar with dplyr. If not, I suggest using first the following tutorial: https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html. Intro dplyr is one of my favourite R packages for data manipulation. It's extremely handy, easy to start and also very elegant">
+    <meta name="twitter:url" content="http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Adam Harasimowicz">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="R, parallel computing">
+    <meta name="twitter:site" content="@adharasim">
+    <meta name="twitter:creator" content="@adharasim">
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1280">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "aicry",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Adam Harasimowicz",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2017/11/pict_bw_small-1.jpg",
+            "width": 96,
+            "height": 96
+        },
+        "url": "http://localhost:2368/author/adam/",
+        "sameAs": [
+            "https://twitter.com/adharasim"
+        ]
+    },
+    "headline": "multidplyr - dplyr meets parallel processing",
+    "url": "http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/",
+    "datePublished": "2017-03-08T18:14:07.000Z",
+    "dateModified": "2017-11-15T17:25:46.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg",
+        "width": 1920,
+        "height": 1280
+    },
+    "keywords": "R, parallel computing",
+    "description": "Note: I assume that you are familiar with dplyr. If not, I suggest using first the following tutorial: https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html. Intro dplyr is one of my favourite R packages for data manipulation. It&#x27;s extremely handy, easy to start and also very elegant",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <script type="text/javascript" src="../public/ghost-sdk.js?v=2d7a0246b0"></script>
+<script type="text/javascript">
+ghost.init({
+	clientId: "ghost-frontend",
+	clientSecret: "1ea80d921ad5"
+});
+</script>
+    <meta name="generator" content="Ghost 1.17">
+    <link rel="alternate" type="application/rss+xml" title="aicry" href="../rss/index.html">
+    <!-- Google Analytics -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-59382220-1', 'auto');
+	  ga('require', 'linkid');
+	  ga('send', 'pageview');
+	</script>
+
+</head>
+<body class="post-template tag-r tag-parallel-computing">
+
+    <div class="site-wrapper">
+
+        
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+                <a class="site-nav-logo" href="../">aicry</a>
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="../">Home</a></li>
+</ul>
+
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+                <a class="social-link social-link-tw" href="https://twitter.com/adharasim" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"></path></svg>
+</a>
+        </div>
+            <a class="rss-button" href="http://cloud.feedly.com/#subscription/feed/http://localhost:2368/rss/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"></circle><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"></path></svg>
+</a>
+    </div>
+</nav>
+    </div>
+</header>
+
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full post tag-r tag-parallel-computing ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="2017-03-08">8 March 2017</time>
+                        <span class="date-divider">/</span> <a href="../tag/r/">R</a>
+                </section>
+                <h1 class="post-full-title">multidplyr - dplyr meets parallel processing</h1>
+            </header>
+
+            <figure class="post-full-image" style="background-image: url(../content/images/2017/11/computer-memory-chips.jpg)">
+            </figure>
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown"><p><em>Note: I assume that you are familiar with dplyr. If not, I suggest using first the following tutorial: <a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html">https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html</a></em>.</p>
+<h4 id="intro">Intro</h4>
+<p><em>dplyr</em> is one of my favourite R packages for data manipulation. It's extremely handy, easy to start and also very elegant with the pipe notation (<code>%&gt;%</code>) yet powerful.</p>
+<p>Nevertheless, among all these advantages, there is one thing which could be improved - unsupported parallelization. Due to the model of data processing, operations like <code>summarize</code> or <code>do</code> could be easily executed in parallel, but they are not.</p>
+<p>Luckily, there is <em>multidplyr</em> which takes all the best from <em>dplyr</em> and adds parallel processing. You can find the project on GitHub: <a href="https://github.com/hadley/multidplyr">https://github.com/hadley/multidplyr</a>.</p>
+<p>According to Hadley Wickham, author of the R package, the speedup, achieved through parallelisation, is visible when there are more than 10 million records or the function performed in <code>do</code> is particularly heavy.</p>
+<h4 id="multidplyrinstallation">multidplyr installation</h4>
+<p>Before you install <em>multidplyr</em>, you have to have <em>devtools</em> package. You can get both using following commands:</p>
+<pre><code class="language-r">install.packages("devtools")
+devtools::install_github("hadley/multidplyr")
+</code></pre>
+<h4 id="basicfunctions">Basic functions</h4>
+<p>There are two basic functions introduced by the package. First of them is <code>partition</code> and it divides data into groups which will be processed independently. Thus, in many cases, it can be viewed as a replacement for <code>group_by</code> function. The second is <code>collect</code> which joins results produced in parallel into one object. If you are familiar with Spark, you can see the analogy. Below, you can find a simple example of the same code executed sequentially in dplyr and in parallel with multidplyr.</p>
+<pre><code class="language-r"># Load packages
+library(dplyr)
+library(multidplyr)
+
+# We will use built-in dataset - airquality
+# dplyr
+airquality %&gt;% group_by(Month) %&gt;% summarize(cnt = n())
+
+# multidplyr
+airquality %&gt;% partition(Month) %&gt;% summarize(cnt = n()) %&gt;% collect()
+</code></pre>
+<p>And the output:</p>
+<pre><code># dplyr
+# A tibble: 5 × 2
+  Month   cnt
+  &lt;int&gt; &lt;int&gt;
+1     5    31
+2     6    30
+3     7    31
+4     8    31
+5     9    30
+
+
+# multidplyr
+# A tibble: 5 × 2
+  Month   cnt
+  &lt;int&gt; &lt;int&gt;
+1     7    31
+2     9    30
+3     5    31
+4     6    30
+5     8    31
+
+</code></pre>
+<p>As you can notice, the results are the same, but order. In the first call, data are ordered by the month. While in the parallel version, only the parts which were processed together are ordered - 7, 9 and 5, 6, 8 (note that results can be different; depends on how the data were split).</p>
+<h4 id="clustermanagement">Cluster management</h4>
+<p>If we want to change the number of cores used during computations, we can create our own cluster. Then, we can decide if we want to use it only for the single call (through passing cluster object as the <code>partition</code> function argument) or as a default cluster.</p>
+<pre><code class="language-r"># Creating 4-core cluster
+cluster &lt;- create_cluster(4)
+
+# Using cluster only for a single call
+airquality %&gt;% partition(Month, cluster = cluster) %&gt;% summarize(cnt = n()) %&gt;% collect()
+
+# Setting default cluster
+set_default_cluster(cluster)
+airquality %&gt;% partition(Month) %&gt;% summarize(cnt = n()) %&gt;% collect()
+</code></pre>
+<h4 id="usersfunctionsandvariables">User's functions and variables</h4>
+<p>By default, multidplyr cannot use any user-created functions or variables. When we try to do this, we receive an error.</p>
+<pre><code class="language-r">four &lt;- function(x) {
+  return(data.frame(a = 4))
+}
+
+one &lt;- 1
+
+# dplyr - using user's function
+airquality %&gt;% group_by(Month) %&gt;% do(four(.))
+
+# dplyr - using user's variable
+airquality %&gt;% group_by(Month) %&gt;% do(data.frame(b=one))
+
+# multidplyr - using user's function
+airquality %&gt;% partition(Month) %&gt;% do(four(.)) %&gt;% collect()
+
+# multidplyr - using user's variable
+airquality %&gt;% partition(Month) %&gt;% do(data.frame(b=one)) %&gt;% collect()
+</code></pre>
+<p>When you try to execute the code above, the dplyr statements will finish successfully in contrary to multidplyr's which return the following errors:</p>
+<pre><code>Error in checkForRemoteErrors(lapply(cl, recvResult)) : 
+  2 nodes produced errors; first error: could not find function "four"
+
+Error in checkForRemoteErrors(lapply(cl, recvResult)) : 
+  2 nodes produced errors; first error: object 'one' not found
+</code></pre>
+<p>To fix the errors, we have to register function <em>four</em> and variable <em>one</em> to make them visible for the cluster. To do this, we will use <code>cluster_assign_value</code> method which takes three arguments - cluster, symbol name and value. If we have not created our own cluster, we can also retrieve the default one (check code below).</p>
+<pre><code class="language-r"># Create new cluster
+cluster &lt;- create_cluster(4)
+# Or retrieve the default one
+cluster &lt;- get_default_cluster()
+
+# Register function and variable
+cluster_assign_value(cluster, 'four', four)
+cluster_assign_value(cluster, 'one', one)
+</code></pre>
+<p>After registration, we should be able to run the multidplyr's code without any problems. Also, we can check already registered objects with <code>cluster_ls</code> method, get one of these items using <code>cluster_get</code> and unregister with <code>cluster_rm</code>.</p>
+<pre><code class="language-r"># Check registered items
+cluster_ls(cluster)
+# Get the item
+cluster_get(cluster, 'one')
+# Unregister function and variable
+cluster_rm(cluster, c('four', 'one'))
+</code></pre>
+<p>Also, if you prefer, you can do the same using pipe notation instead passing cluster as the first argument.</p>
+<pre><code class="language-r"># Check registered items
+cluster %&gt;% cluster_ls()
+# Get the item
+cluster %&gt;% cluster_get('one')
+# Unregister function and variable
+cluster %&gt;% cluster_rm(c('four', 'one'))
+</code></pre>
+<p>Besides <code>cluster_assign_value</code>, there are three other methods of registering symbols. Thus, you have a possibility to choose the best one depending on a situation.<br>
+The first of them is <code>cluster_copy</code> which is the equivalent of <code>cluster_assign_value</code> with the same name as original the symbol. So if you are not going to use any different name, this is the preferred approach.</p>
+<pre><code class="language-r"># Both commands has the same effect
+cluster_copy(cluster, four)
+cluster_assign_value(cluster, "four", four)
+</code></pre>
+<p>The second of the functions is <code>cluster_assign_expr</code> which allows us to assign R code to the symbol:</p>
+<pre><code class="language-r">cluster_assign_expr(cluster, 'random10', rnorm(10))
+cluster_get(cluster, 'random10')
+
+# Output:
+# [[1]]
+#  [1] -1.1242879 -0.5550312  0.6660461  0.3170633 -0.9264522  
+#  [6] 0.4113212  -1.4133881  0.5977884 -1.6699814 -0.2328526
+
+# [[2]]
+#  [1] -1.1242879 -0.5550312  0.6660461  0.3170633 -0.9264522  
+#  [6] 0.4113212  -1.4133881  0.5977884 -1.6699814 -0.2328526
+</code></pre>
+<p>And the last one is <code>cluster_assign_each</code>. It is an interesting function which can assign a different value to each cluster node (core) while all of them will have a common symbol. It means that we can use the same piece of code for all of them. In an example, when we want to process files in parallel.</p>
+<pre><code class="language-r">cluster_assign_each(cluster, 'filename', list('file1.csv', 'file2.csv'))
+cluster_get(cluster, 'filename')
+
+# Output:
+# [[1]]
+# [1] "file1.csv"
+
+# [[2]]
+# [1] "file2.csv"
+</code></pre>
+<p>Finally, I want to add that if we register the same symbol twice, we overwrite the previous value:</p>
+<pre><code class="language-r">cluster_assign_value(cluster, 'one', 1)
+cluster_get(cluster, 'one')
+
+# Output:
+# [[1]]
+# [1] 1
+
+# [[2]]
+# [1] 1
+
+cluster_assign_value(cluster, 'one', 2)
+cluster_get(cluster, 'one')
+
+# Output:
+# [[1]]
+# [1] 2
+
+# [[2]]
+# [1] 2
+
+</code></pre>
+<p>If you have any questions, just leave a comment.</p>
+</div>
+            </section>
+
+
+            <footer class="post-full-footer">
+
+                <section class="author-card">
+                        <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+                    <section class="author-card-content">
+                        <h4 class="author-card-name"><a href="../author/adam/">Adam Harasimowicz</a></h4>
+                            <p>Read <a href="../author/adam/">more posts</a> by this author.</p>
+                    </section>
+                </section>
+                <div class="post-full-footer-right">
+                    <a class="author-card-button" href="../author/adam/">Read More</a>
+                </div>
+
+            </footer>
+
+
+            <section class="post-full-comments">
+                <div id="disqus_thread"></div>
+                
+                <script>
+                    var disqus_config = function () {
+                        this.page.url = 'http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/';
+                        this.page.identifier = '10';
+                    };
+                    (function() {
+                        var d = document, s = d.createElement('script');
+                        s.src = 'https://aicry.disqus.com/embed.js';
+                        s.setAttribute('data-timestamp', +new Date());
+                        (d.head || d.body).appendChild(s);
+                    })();
+                </script>
+            </section>
+
+        </article>
+
+    </div>
+</main>
+
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+
+                <article class="post-card post tag-r no-image">
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="../profvis-code-profiling-in-r/">
+            <header class="post-card-header">
+                    <span class="post-card-tags">R</span>
+                <h2 class="post-card-title">profvis - code profiling in R</h2>
+            </header>
+            <section class="post-card-excerpt">
+                <p>Usually, when you run R code interactively, it is easy to spot which parts of the script are the most time-consuming. Nevertheless, for functions or nested loops, it may be not so obvious.</p>
+            </section>
+        </a>
+        <footer class="post-card-meta">
+                <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+            <span class="post-card-author"><a href="../author/adam/">Adam Harasimowicz</a></span>
+        </footer>
+    </div>
+</article>
+
+                <article class="post-card post tag-r tag-ggplot2 tag-data-visualization no-image">
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="../r-heat-maps-with-ggplot2/">
+            <header class="post-card-header">
+                    <span class="post-card-tags">R</span>
+                <h2 class="post-card-title">R - Heat maps with ggplot2</h2>
+            </header>
+            <section class="post-card-excerpt">
+                <p>Heat maps are a very useful graphical tool to better understand or present data stored in matrix in more accessible form. E.g. they are very helpful during seeking/comparing missing values in</p>
+            </section>
+        </a>
+        <footer class="post-card-meta">
+                <img class="author-profile-image" src="../content/images/2017/11/pict_bw_small-1.jpg" alt="Adam Harasimowicz">
+            <span class="post-card-author"><a href="../author/adam/">Adam Harasimowicz</a></span>
+        </footer>
+    </div>
+</article>
+
+        </div>
+    </div>
+</aside>
+
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="../">
+            <span>aicry</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">—</span>
+    <div class="floating-header-title">multidplyr - dplyr meets parallel processing</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"></path>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=multidplyr%20-%20dplyr%20meets%20parallel%20processing&amp;url=http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/" onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"></path></svg>
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/" onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"></path></svg>
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+
+
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="../">aicry</a> © 2017</section>
+                <nav class="site-footer-nav">
+                    <a href="../">Latest Posts</a>
+                    
+                    <a href="https://twitter.com/adharasim" target="_blank" rel="noopener">Twitter</a>
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=2d7a0246b0"></script>
+
+
+    <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+
+    
+
+    <script type="text/javascript" src="../assets/js/prism.js?v=2d7a0246b0"></script>
+
+</body>

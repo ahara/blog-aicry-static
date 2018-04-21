@@ -1,3 +1,4 @@
+
 <head>
     <meta charset="utf-8">
 
@@ -18,7 +19,7 @@
     <meta property="og:description" content="Heat maps are a very useful graphical tool to better understand or present data stored in matrix in more accessible form. E.g. they are very helpful during seeking/comparing missing values in time series or checking cross-correlations for large number of financial instruments. Before we present how to plot">
     <meta property="og:url" content="http://localhost:2368/r-heat-maps-with-ggplot2/">
     <meta property="article:published_time" content="2016-05-11T18:20:39.000Z">
-    <meta property="article:modified_time" content="2017-11-15T00:11:59.000Z">
+    <meta property="article:modified_time" content="2018-01-01T15:38:49.000Z">
     <meta property="article:tag" content="R">
     <meta property="article:tag" content="ggplot2">
     <meta property="article:tag" content="data visualization">
@@ -65,7 +66,7 @@
     "headline": "R - Heat maps with ggplot2",
     "url": "http://localhost:2368/r-heat-maps-with-ggplot2/",
     "datePublished": "2016-05-11T18:20:39.000Z",
-    "dateModified": "2017-11-15T00:11:59.000Z",
+    "dateModified": "2018-01-01T15:38:49.000Z",
     "keywords": "R, ggplot2, data visualization",
     "description": "Heat maps are a very useful graphical tool to better understand or present data stored in matrix in more accessible form. E.g. they are very helpful during seeking/comparing missing values in time series or checking cross-correlations for large number of financial instruments. Before we present how to plot",
     "mainEntityOfPage": {
@@ -138,6 +139,7 @@ library(RColorBrewer)
 library(reshape2)
 </code></pre>
 <p>Before we'll plot heat map in ggplot2, we have to transform our data into melted form with <em>melt</em> function from <em>reshape2</em>.</p>
+<p><a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"></a></p>
 <pre><code class="language-r">mat.melted &lt;- melt(mat)
 print(mat.melted)
 
@@ -199,7 +201,7 @@ ggplot(mat.melted, aes(x = Var1, y = Var2, fill = value)) +
         </article>
     </main>
     <footer class="site-footer clearfix">
-        <section class="copyright"><a href="../../">aicry</a> © 2017</section>
+        <section class="copyright"><a href="../../">aicry</a> © 2018</section>
         <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
     </footer>
 </body>

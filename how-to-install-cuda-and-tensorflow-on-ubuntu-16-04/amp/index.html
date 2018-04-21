@@ -2,41 +2,44 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Torch7 - Reading CSV into tensor</title>
+    <title>How to install CUDA and TensorFlow GPU on Ubuntu 16.04</title>
 
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 
     <link rel="shortcut icon" href="../../favicon.ico">
 
+    <meta name="description" content="Step-by-step tutorial how to install Nvidia CUDA 9.0 with CuDNN and Tensorflow to use your GPU to train Deep Neural Networks. Enjoy Deep Learning.">
     <link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon">
     <link rel="canonical" href="../index.html">
     <meta name="referrer" content="no-referrer-when-downgrade">
     
     <meta property="og:site_name" content="aicry">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Torch7 - Reading CSV into tensor">
-    <meta property="og:description" content="Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with csvigo module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to">
-    <meta property="og:url" content="http://localhost:2368/torch7-reading-csv-into-tensor/">
-    <meta property="og:image" content="http://localhost:2368/content/images/2017/11/torch-tw.png">
-    <meta property="article:published_time" content="2015-02-06T17:41:45.000Z">
-    <meta property="article:modified_time" content="2017-11-15T17:56:47.000Z">
-    <meta property="article:tag" content="Torch">
-    <meta property="article:tag" content="LUA">
+    <meta property="og:title" content="How to install CUDA and TensorFlow GPU on Ubuntu 16.04">
+    <meta property="og:description" content="I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.">
+    <meta property="og:url" content="http://localhost:2368/how-to-install-cuda-and-tensorflow-on-ubuntu-16-04/">
+    <meta property="article:published_time" content="2018-04-21T16:28:46.000Z">
+    <meta property="article:modified_time" content="2018-04-21T16:41:22.000Z">
+    <meta property="article:tag" content="neural network">
+    <meta property="article:tag" content="CUDA">
+    <meta property="article:tag" content="Ubuntu">
+    <meta property="article:tag" content="GPU">
+    <meta property="article:tag" content="NVIDIA">
+    <meta property="article:tag" content="deep learning">
+    <meta property="article:tag" content="tensorflow">
+    <meta property="article:tag" content="machine learning">
     
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Torch7 - Reading CSV into tensor">
-    <meta name="twitter:description" content="Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with csvigo module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to">
-    <meta name="twitter:url" content="http://localhost:2368/torch7-reading-csv-into-tensor/">
-    <meta name="twitter:image" content="http://localhost:2368/content/images/2017/11/torch-tw.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="How to install CUDA and TensorFlow GPU on Ubuntu 16.04">
+    <meta name="twitter:description" content="I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.">
+    <meta name="twitter:url" content="http://localhost:2368/how-to-install-cuda-and-tensorflow-on-ubuntu-16-04/">
     <meta name="twitter:label1" content="Written by">
     <meta name="twitter:data1" content="Adam Harasimowicz">
     <meta name="twitter:label2" content="Filed under">
-    <meta name="twitter:data2" content="Torch, LUA">
+    <meta name="twitter:data2" content="neural network, CUDA, Ubuntu, GPU, NVIDIA, deep learning, tensorflow, machine learning">
     <meta name="twitter:site" content="@adharasim">
     <meta name="twitter:creator" content="@adharasim">
-    <meta property="og:image:width" content="630">
-    <meta property="og:image:height" content="356">
     
     <script type="application/ld+json">
 {
@@ -66,18 +69,12 @@
             "https://twitter.com/adharasim"
         ]
     },
-    "headline": "Torch7 - Reading CSV into tensor",
-    "url": "http://localhost:2368/torch7-reading-csv-into-tensor/",
-    "datePublished": "2015-02-06T17:41:45.000Z",
-    "dateModified": "2017-11-15T17:56:47.000Z",
-    "image": {
-        "@type": "ImageObject",
-        "url": "http://localhost:2368/content/images/2017/11/torch-tw.png",
-        "width": 630,
-        "height": 356
-    },
-    "keywords": "Torch, LUA",
-    "description": "Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with csvigo module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to",
+    "headline": "How to install CUDA and TensorFlow GPU on Ubuntu 16.04",
+    "url": "http://localhost:2368/how-to-install-cuda-and-tensorflow-on-ubuntu-16-04/",
+    "datePublished": "2018-04-21T16:28:46.000Z",
+    "dateModified": "2018-04-21T16:41:22.000Z",
+    "keywords": "neural network, CUDA, Ubuntu, GPU, NVIDIA, deep learning, tensorflow, machine learning",
+    "description": "I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.",
     "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "http://localhost:2368/"
@@ -109,45 +106,58 @@
         <article class="post">
 
             <header class="post-header">
-                <h1 class="post-title">Torch7 - Reading CSV into tensor</h1>
+                <h1 class="post-title">How to install CUDA and TensorFlow GPU on Ubuntu 16.04</h1>
                 <section class="post-meta">
                     <p class="author">by <a href="../../author/adam/">Adam Harasimowicz</a></p>
-                    <time class="post-date" datetime="2015-02-06">2015-02-06</time>
+                    <time class="post-date" datetime="2018-04-21">2018-04-21</time>
                 </section>
             </header>
-            <figure class="post-image">
-                <amp-img src="http://localhost:2368/content/images/2017/11/torch-tw.png" width="600" height="400" layout="responsive"></amp-img>
-            </figure>
             <section class="post-content">
 
-                <div class="kg-card-markdown"><p>Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with <code>csvigo</code> module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to train model were too big. Yes, csvigo wasn't able to work with 350MB file and returned nice error: <em>not enough memory</em>. According to thread in Google Groups rebuilding torch with different flags could help.</p>
-<p>So I decided to use lower level mechanism - reading CSV as a normal file - line by line. Core part of code looked like:</p>
-<pre><code class="language-lua">-- Read data from CSV to tensor
-local csvFile = io.open(filePath, 'r')
-local header = csvFile:read()
-
-local data = torch.Tensor(ROWS, COLS)
-
-local i = 0
-for line in csvFile:lines('*l') do
-  i = i + 1
-  local l = line:split(',')
-  for key, val in ipairs(l) do
-    data[i][key] = val
-  end
-end
-
-csvFile:close()
+                <div class="kg-card-markdown"><p>I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.</p>
+<p>Luckily, time changed and nowadays, it's much easier and better documented. I was really positively surprised how much all CUDA-related tools matured over the time. So... let's start.</p>
+<h1 id="initialchecks">Initial checks</h1>
+<p>Make few initial checks to ensure that everything is in place:</p>
+<h2 id="gpudevice">GPU device</h2>
+<p>Execute in a terminal:</p>
+<pre><code class="language-bash">lspci | grep -i nvidia
 </code></pre>
-<p>If you are looking for a whole script, check <a href="https://github.com/ahara/blog/blob/master/torch_read_csv_into_tensor/read_csv.lua">GitHub repository</a>.</p>
-</div>
+<p>And you should see something similar to this:</p>
+<pre><code>01:00.0 VGA compatible controller: NVIDIA Corporation Device 1c20 (rev a1)
+</code></pre>
+<h2 id="linuxversion">Linux version</h2>
+<p>Run:</p>
+<pre><code class="language-bash">uname -m &amp;&amp; cat /etc/*release | head -n0
+</code></pre>
+<p>And the expected version is:</p>
+<pre><code>x86_64
+</code></pre>
+<h2 id="gcc">GCC</h2>
+<p>Run:</p>
+<pre><code class="language-bash">gcc --version
+</code></pre>
+<p>And check if your system has GCC installed. In my case, the output looked like:</p>
+<pre><code>gcc (Ubuntu 5.4.0-6ubuntu1~16.04.9) 5.4.0 20160609
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+</code></pre>
+<h1 id="preparation">Preparation</h1>
+<h2 id="kernelheaders">Kernel headers</h2>
+<p>Install kernel headers:</p>
+<pre><code class="language-bash">sudo apt-get update
+sudo apt-get install -y linux-headers-$(uname -r)
+</code></pre>
+<h2 id="removeoldnvidiasstuff">Remove old Nvidia's stuff</h2>
+<p>First, locate what you have already installed:</p>
+<pre><code class="language-bash">dpkg --get-selections | grep cuda | egrep 'install
 
-            </section>
+            
 
-        </article>
-    </main>
+        
+    
     <footer class="site-footer clearfix">
         <section class="copyright"><a href="../../">aicry</a> © 2018</section>
         <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
     </footer>
-</body>
+</code></pre></div></section></article></main></body>

@@ -1,4 +1,338 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>aicry</title><description>Data Science, Machine Learning and AI</description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>aicry</title><link>http://localhost:2368/</link></image><generator>Ghost 1.17</generator><lastBuildDate>Wed, 15 Nov 2017 18:49:39 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Free hosting for Ghost</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;This post won't be related to main blog topics. However, recently Red Hat has closed OpenShift v2 platform where my blog was hosted and I had to migrate it to the new version or find another hosting. Finally, I decided to try with OpenShift v3.&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>aicry</title><description>Data Science, Machine Learning and AI</description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>aicry</title><link>http://localhost:2368/</link></image><generator>Ghost 1.17</generator><lastBuildDate>Sat, 21 Apr 2018 17:01:49 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>How to install CUDA and TensorFlow GPU on Ubuntu 16.04</title><description>I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.</description><link>http://localhost:2368/how-to-install-cuda-and-tensorflow-on-ubuntu-16-04/</link><guid isPermaLink="false">5adb1831b856c872c968a730</guid><category>neural network</category><category>CUDA</category><category>Ubuntu</category><category>GPU</category><category>NVIDIA</category><category>deep learning</category><category>tensorflow</category><category>machine learning</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 21 Apr 2018 16:28:46 GMT</pubDate><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.&lt;/p&gt;
+&lt;p&gt;Luckily, time changed and nowadays, it's much easier and better documented. I was really positively surprised how much all CUDA-related tools matured over the time. So... let's start.&lt;/p&gt;
+&lt;h1 id="initialchecks"&gt;Initial checks&lt;/h1&gt;
+&lt;p&gt;Make few initial checks to ensure that everything is in place:&lt;/p&gt;
+&lt;h2 id="gpudevice"&gt;GPU device&lt;/h2&gt;
+&lt;p&gt;Execute in a terminal:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;lspci | grep -i nvidia
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And you should see something similar to this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;01:00.0 VGA compatible controller: NVIDIA Corporation Device 1c20 (rev a1)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="linuxversion"&gt;Linux version&lt;/h2&gt;
+&lt;p&gt;Run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;uname -m &amp;amp;&amp;amp; cat /etc/*release | head -n0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And the expected version is:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;x86_64
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="gcc"&gt;GCC&lt;/h2&gt;
+&lt;p&gt;Run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;gcc --version
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And check if your system has GCC installed. In my case, the output looked like:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gcc (Ubuntu 5.4.0-6ubuntu1~16.04.9) 5.4.0 20160609
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id="preparation"&gt;Preparation&lt;/h1&gt;
+&lt;h2 id="kernelheaders"&gt;Kernel headers&lt;/h2&gt;
+&lt;p&gt;Install kernel headers:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo apt-get update
+sudo apt-get install -y linux-headers-$(uname -r)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="removeoldnvidiasstuff"&gt;Remove old Nvidia's stuff&lt;/h2&gt;
+&lt;p&gt;First, locate what you have already installed:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;dpkg --get-selections | grep cuda | egrep 'install$'
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The command above can return nothing or some packages:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;...
+cuda-cufft-dev-7-5			install
+cuda-curand-7-5				install
+cuda-curand-dev-7-5			install
+cuda-cusolver-7-5			install
+cuda-cusolver-dev-7-5			install
+cuda-cusparse-7-5			install
+cuda-cusparse-dev-7-5			install
+cuda-driver-dev-7-5			install
+cuda-license-7-5			install
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And for each found element run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo dpkg --remove &amp;lt;package-name&amp;gt;
+# Example:
+sudo dpkg --remove cuda-curand-7-5
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you want to read more about the initial checks and preparations which we have made, you can check a documentation on Nvidia's website &lt;a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#pre-installation-actions"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id="installcuda"&gt;Install CUDA&lt;/h1&gt;
+&lt;h2 id="disablenouveaudriver"&gt;Disable Nouveau driver&lt;/h2&gt;
+&lt;p&gt;First, check if your system uses it. Run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;lsmod | grep nouveau
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And if it prints anything that it means that you have to disable the driver. To do it, create &lt;code&gt;/etc/modprobe.d/blacklist-nouveau.conf&lt;/code&gt; file and add the following lines to the file:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;blacklist nouveau
+options nouveau modeset=0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When it's done and saved, recreate kernel initramfs:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo update-initramfs -u
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="checkdevicenodes"&gt;Check device nodes&lt;/h2&gt;
+&lt;p&gt;Check that the device files &lt;code&gt;/dev/nvidia*&lt;/code&gt; exist and have the correct (0666) file permissions. If not, use the following script to fix it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;#!/bin/bash
+
+/sbin/modprobe nvidia
+
+if [ &amp;quot;$?&amp;quot; -eq 0 ]; then
+  # Count the number of NVIDIA controllers found.
+  NVDEVS=`lspci | grep -i NVIDIA`
+  N3D=`echo &amp;quot;$NVDEVS&amp;quot; | grep &amp;quot;3D controller&amp;quot; | wc -l`
+  NVGA=`echo &amp;quot;$NVDEVS&amp;quot; | grep &amp;quot;VGA compatible controller&amp;quot; | wc -l`
+
+  N=`expr $N3D + $NVGA - 1`
+  for i in `seq 0 $N`; do
+    mknod -m 666 /dev/nvidia$i c 195 $i
+  done
+
+  mknod -m 666 /dev/nvidiactl c 195 255
+
+else
+  exit 1
+fi
+
+/sbin/modprobe nvidia-uvm
+
+if [ &amp;quot;$?&amp;quot; -eq 0 ]; then
+  # Find out the major device number used by the nvidia-uvm driver
+  D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
+
+  mknod -m 666 /dev/nvidia-uvm c $D 0
+else
+  exit 1
+fi
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And verify again, if the files are present:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;ls -l /dev/nvidia*
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You should see something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;crw-rw-rw- 1 root root 195,   0 kwi 14 00:29 /dev/nvidia0
+crw-rw-rw- 1 root root 195, 255 kwi 14 00:29 /dev/nvidiactl
+crw-rw-rw- 1 root root 195, 254 kwi 14 00:29 /dev/nvidia-modeset
+crw-rw-rw- 1 root root 241,   0 kwi 14 00:29 /dev/nvidia-uvm
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Again, if you are looking for more information, the relevant part is available on Nvidia's page &lt;a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-nouveau"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id="installcudapackage"&gt;Install CUDA package&lt;/h2&gt;
+&lt;p&gt;To download CUDA, go to &lt;a href="https://developer.nvidia.com/cuda-90-download-archive"&gt;developer.nvidia.com/cuda-90-download-archive&lt;/a&gt; and get the &lt;code&gt;runfile&lt;/code&gt; installer.&lt;/p&gt;
+&lt;p&gt;I have installed &lt;a href="https://developer.nvidia.com/cuda-90-download-archive?target_os=Linux&amp;amp;target_arch=x86_64&amp;amp;target_distro=Ubuntu&amp;amp;target_version=1604&amp;amp;target_type=runfilelocal"&gt;version 9.0&lt;/a&gt;, but if you wish to install another one, you can &lt;a href="https://developer.nvidia.com/cuda-toolkit-archive"&gt;download it from here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Now, when the runfile is already downloaded, execute:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;cd ~/Downloads
+sudo sh cuda_9.0.176_384.81_linux.run
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;em&gt;Note that your exact name of the runfile can be slightly different.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Then press &lt;code&gt;q&lt;/code&gt;, &lt;code&gt;accept&lt;/code&gt;, &lt;code&gt;n&lt;/code&gt;, &lt;code&gt;y&lt;/code&gt;, &lt;code&gt;[enter]&lt;/code&gt;, &lt;code&gt;y&lt;/code&gt;, &lt;code&gt;y&lt;/code&gt; and &lt;code&gt;[enter]&lt;/code&gt; to configure the installation settings. My output looked like:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Logging to /tmp/cuda_install_2986.log
+Using more to view the EULA.
+End User License Agreement
+--------------------------
+
+...
+
+
+Do you accept the previously read EULA?
+accept/decline/quit: accept
+
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 384.81?
+(y)es/(n)o/(q)uit: n
+
+Install the CUDA 9.0 Toolkit?
+(y)es/(n)o/(q)uit: y
+
+Enter Toolkit Location
+ [ default is /usr/local/cuda-9.0 ]:
+
+Do you want to install a symbolic link at /usr/local/cuda?
+(y)es/(n)o/(q)uit: y
+
+Install the CUDA 9.0 Samples?
+(y)es/(n)o/(q)uit: y
+
+Enter CUDA Samples Location
+ [ default is /home/ntsoi ]:
+
+Installing the CUDA Toolkit in /usr/local/cuda-9.0 ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="installupdatesforcuda"&gt;Install updates for CUDA&lt;/h2&gt;
+&lt;p&gt;From the same location where you found &lt;code&gt;runfile&lt;/code&gt; for CUDA, download also all available updates. In my case, two of them were released. To install them, type:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo sh cuda_9.0.176.1_linux.run
+sudo sh cuda_9.0.176.2_linux.run
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, execute &lt;em&gt;ldconfig&lt;/em&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo ldconfig
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Go to the text mode by pressing &lt;code&gt;Ctrl+Alt+F1&lt;/code&gt;, login and run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo service gdm stop
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, add the following exports to &lt;code&gt;/etc/profile.d/cuda.sh&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;export PATH=/usr/local/cuda/bin:$PATH 
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="installgraphicdriver"&gt;Install graphic driver&lt;/h2&gt;
+&lt;p&gt;To install the driver, execute:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo add-apt-repository ppa:graphics-drivers/ppa
+sudo apt-get update
+sudo apt install nvidia-384
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;em&gt;Note: you can check if there is available a newer version of the driver than 384.&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id="installcudaprofiletoolsinterface"&gt;Install CUDA Profile Tools Interface&lt;/h2&gt;
+&lt;p&gt;Install CUPTI with:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo apt-get install -y libcupti-dev
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And add the following line to &lt;code&gt;/etc/profile.d/cuda.sh&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}/usr/local/cuda/extras/CUPTI/lib64
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So your file should be:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}/usr/local/cuda/extras/CUPTI/lib64
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="reboot"&gt;Reboot&lt;/h2&gt;
+&lt;p&gt;At the end, reboot your system:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo reboot
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="verifytheinstallation"&gt;Verify the installation&lt;/h2&gt;
+&lt;p&gt;Make some basic test, if you are able to use CUDA and your GPU is correctly detected.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;cd ~/NVIDIA_CUDA-9.0_Samples/1_Utilities/deviceQuery
+make
+./deviceQuery
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You should see a similar output:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;./deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: &amp;quot;GeForce GTX 1060 with Max-Q Design&amp;quot;
+  CUDA Driver Version / Runtime Version          9.0 / 9.0
+  CUDA Capability Major/Minor version number:    6.1
+  Total amount of global memory:                 6073 MBytes (6367739904 bytes)
+  (10) Multiprocessors, (128) CUDA Cores/MP:     1280 CUDA Cores
+  GPU Max Clock rate:                            1342 MHz (1.34 GHz)
+  Memory Clock rate:                             4004 Mhz
+  Memory Bus Width:                              192-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     &amp;lt; Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) &amp;gt;
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 9.0, CUDA Runtime Version = 9.0, NumDevs = 1
+Result = PASS
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id="installcudnn"&gt;Install CuDNN&lt;/h1&gt;
+&lt;p&gt;Download CuDNN from &lt;a href="https://developer.nvidia.com/cudnn"&gt;developer.nvidia.com/cudnn&lt;/a&gt; - regular, dev and doc &lt;code&gt;deb&lt;/code&gt; files. And install it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo dpkg -i libcudnn7_7.1.2.21-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-dev_7.1.2.21-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-doc_7.1.2.21-1+cuda9.0_amd64.deb
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, verify the installation running:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;cp -r /usr/src/cudnn_samples_v7/ $HOME
+cd  $HOME/cudnn_samples_v7/mnistCUDNN
+make clean &amp;amp;&amp;amp; make
+./mnistCUDNN
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You should observe as an output something analogous:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;cudnnGetVersion() : 7102 , CUDNN_VERSION from cudnn.h : 7102 (7.1.2)
+Host compiler version : GCC 5.4.0
+There are 1 CUDA capable devices on your machine :
+device 0 : sms 10  Capabilities 6.1, SmClock 1341.5 Mhz, MemSize (Mb) 6072, MemClock 4004.0 Mhz, Ecc=0, boardGroupID=0
+Using device 0
+
+Testing single precision
+Loading image data/one_28x28.pgm
+Performing forward propagation ...
+Testing cudnnGetConvolutionForwardAlgorithm ...
+Fastest algorithm is Algo 1
+Testing cudnnFindConvolutionForwardAlgorithm ...
+^^^^ CUDNN_STATUS_SUCCESS for Algo 0: 0.027296 time requiring 0 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 1: 0.031744 time requiring 3464 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 2: 0.043616 time requiring 57600 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 7: 0.168960 time requiring 2057744 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 5: 0.235520 time requiring 203008 memory
+Resulting weights from Softmax:
+0.0000000 0.9999399 0.0000000 0.0000000 0.0000561 0.0000000 0.0000012 0.0000017 0.0000010 0.0000000
+Loading image data/three_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000000 0.0000000 0.9999288 0.0000000 0.0000711 0.0000000 0.0000000 0.0000000 0.0000000
+Loading image data/five_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000008 0.0000000 0.0000002 0.0000000 0.9999820 0.0000154 0.0000000 0.0000012 0.0000006
+
+Result of classification: 1 3 5
+
+Test passed!
+
+Testing half precision (math in single precision)
+Loading image data/one_28x28.pgm
+Performing forward propagation ...
+Testing cudnnGetConvolutionForwardAlgorithm ...
+Fastest algorithm is Algo 1
+Testing cudnnFindConvolutionForwardAlgorithm ...
+^^^^ CUDNN_STATUS_SUCCESS for Algo 0: 0.025536 time requiring 0 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 1: 0.029504 time requiring 3464 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 2: 0.038912 time requiring 28800 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 7: 0.152576 time requiring 2057744 memory
+^^^^ CUDNN_STATUS_SUCCESS for Algo 5: 0.249728 time requiring 203008 memory
+Resulting weights from Softmax:
+0.0000001 1.0000000 0.0000001 0.0000000 0.0000563 0.0000001 0.0000012 0.0000017 0.0000010 0.0000001
+Loading image data/three_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000714 0.0000000 0.0000000 0.0000000 0.0000000
+Loading image data/five_28x28.pgm
+Performing forward propagation ...
+Resulting weights from Softmax:
+0.0000000 0.0000008 0.0000000 0.0000002 0.0000000 1.0000000 0.0000154 0.0000000 0.0000012 0.0000006
+
+Result of classification: 1 3 5
+
+Test passed!
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id="installtensorflow"&gt;Install TensorFlow&lt;/h1&gt;
+&lt;p&gt;Choose if you want to install TensorFlow with virtualenv (I suggest this way) or directly in a system.&lt;/p&gt;
+&lt;h2 id="withvirtualenv"&gt;With virtualenv&lt;/h2&gt;
+&lt;p&gt;To use virtualenv, execute:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo apt-get install python-pip python-dev python-virtualenv
+mkdir .pyenv
+cd .pyenv
+virtualenv --system-site-packages ds
+source ds/bin/activate
+pip install pip -U
+pip install --upgrade tensorflow-gpu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="orwithoutvirtualenv"&gt;Or without virtualenv&lt;/h2&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;sudo apt-get install python-pip python-dev
+pip install pip -U
+pip install --upgrade tensorflow-gpu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="verifyinstallation"&gt;Verify installation&lt;/h2&gt;
+&lt;p&gt;Run &lt;code&gt;python&lt;/code&gt; in the terminal and then type &lt;code&gt;import tensorflow&lt;/code&gt; to check if it was correctly loaded.&lt;/p&gt;
+&lt;h1 id="summary"&gt;Summary&lt;/h1&gt;
+&lt;p&gt;That's all. Now, you should be able to use your TensorFlow with GPU and train awesome Deep Neural Networks! I hope that this article was helpful. If so, do not hesitate to leave a comment and share it on Twitter, Facebook, LinkedIn or other social media which you prefer.&lt;/p&gt;
+&lt;/div&gt;</content:encoded></item><item><title>Free hosting for Ghost</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;This post won't be related to main blog topics. However, recently Red Hat has closed OpenShift v2 platform where my blog was hosted and I had to migrate it to the new version or find another hosting. Finally, I decided to try with OpenShift v3.&lt;/p&gt;
 &lt;p&gt;Luckily, Red Hat prepared a&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/free-hosting-for-ghost/</link><guid isPermaLink="false">5a0b698f673a20359e2377e8</guid><category>Ghost</category><category>Free hosting</category><category>Blog</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Mon, 06 Nov 2017 12:02:17 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/OpenShift-LogoType.svg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/OpenShift-LogoType.svg" alt="Free hosting for Ghost"&gt;&lt;p&gt;This post won't be related to main blog topics. However, recently Red Hat has closed OpenShift v2 platform where my blog was hosted and I had to migrate it to the new version or find another hosting. Finally, I decided to try with OpenShift v3.&lt;/p&gt;
 &lt;p&gt;Luckily, Red Hat prepared a helpful &lt;a href="https://blog.openshift.com/migrating-ghost-app-openshift-3/"&gt;tutorial about Ghost and the migration&lt;/a&gt;, but there were some parts which were missed when you wanted to use free tier, private git repository or your custom domain. Thus, I will try to give some hints here to make installation easier.&lt;/p&gt;
 &lt;p&gt;Also, if you want to start new blog and you are not interested in migration, I think that still it can be very helpful for you.&lt;/p&gt;
@@ -14,6 +348,7 @@
 oc new-app mysql-persistent
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Remember to save output from the command above as there will be login details to MySQL.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="Free hosting for Ghost"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id="coderepository"&gt;Code repository&lt;/h3&gt;
 &lt;p&gt;Create &lt;a href="https://bitbucket.org/"&gt;BitBucket&lt;/a&gt; repository with your blog code. Eventually, if you are starting from scratch, you can obtain code from the official &lt;a href="https://github.com/TryGhost/Ghost"&gt;Ghost repo&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Next, generate SSH key pair.&lt;/p&gt;
@@ -111,6 +446,7 @@ profvis({
 &lt;pre&gt;&lt;code class="language-r"&gt;install.packages(&amp;quot;devtools&amp;quot;)
 devtools::install_github(&amp;quot;hadley/multidplyr&amp;quot;)
 &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="multidplyr - dplyr meets parallel processing"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id="basicfunctions"&gt;Basic functions&lt;/h4&gt;
 &lt;p&gt;There are two basic functions introduced by the package. First of them is &lt;code&gt;partition&lt;/code&gt; and it divides data into groups which will be processed independently. Thus, in many cases, it can be viewed as a replacement for &lt;code&gt;group_by&lt;/code&gt; function. The second is &lt;code&gt;collect&lt;/code&gt; which joins results produced in parallel into one object. If you are familiar with Spark, you can see the analogy. Below, you can find a simple example of the same code executed sequentially in dplyr and in parallel with multidplyr.&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-r"&gt;# Load packages
@@ -298,6 +634,7 @@ library(RColorBrewer)
 library(reshape2)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Before we'll plot heat map in ggplot2, we have to transform our data into melted form with &lt;em&gt;melt&lt;/em&gt; function from &lt;em&gt;reshape2&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="GymAI: Push-ups in Google Play"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-r"&gt;mat.melted &amp;lt;- melt(mat)
 print(mat.melted)
 
@@ -374,6 +711,7 @@ library(doParallel)
 # executing %dopar% sequentially: no parallel backend registered 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;If you run it for the first time, you should see the warning message which indicates that the loop ran sequentially. To execute your code in parallel, beside using &lt;em&gt;dopar&lt;/em&gt;, you have to register parallel backend - don't worry, it's easy.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="R - parallel computing in 5 minutes (with foreach and doParallel)"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-r"&gt;registerDoParallel()
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Run command above and try one more time parallized version of the loop. You should see that now the execution time is lower. By default, registering backend without any parameters creates 3 workers on Windows and approximately half of the number of cores on Unix systems.&lt;/p&gt;
@@ -552,6 +890,7 @@ sudo apt-get install frei0r-plugins
 cd OpenCV
 git clone https://github.com/Itseez/opencv.git
 &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="Ubuntu 14.04 - install OpenCV with CUDA"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id="buildandinstallopencv"&gt;Build and install OpenCV&lt;/h4&gt;
 &lt;pre&gt;&lt;code class="language-bash"&gt;cd opencv
 mkdir release

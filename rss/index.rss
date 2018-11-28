@@ -1,4 +1,76 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>aicry</title><description>Data Science, Machine Learning and AI</description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>aicry</title><link>http://localhost:2368/</link></image><generator>Ghost 1.17</generator><lastBuildDate>Sat, 21 Apr 2018 17:01:49 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>How to install CUDA and TensorFlow GPU on Ubuntu 16.04</title><description>I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.</description><link>http://localhost:2368/how-to-install-cuda-and-tensorflow-on-ubuntu-16-04/</link><guid isPermaLink="false">5adb1831b856c872c968a730</guid><category>neural network</category><category>CUDA</category><category>Ubuntu</category><category>GPU</category><category>NVIDIA</category><category>deep learning</category><category>tensorflow</category><category>machine learning</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 21 Apr 2018 16:28:46 GMT</pubDate><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>aicry</title><description>Data Science, Machine Learning and AI</description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>aicry</title><link>http://localhost:2368/</link></image><generator>Ghost 1.17</generator><lastBuildDate>Wed, 28 Nov 2018 23:32:05 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Detecting bots in online voting</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Bots can ruin even the best competition. Their advantages are scale and speed. And it is very hard to compete with them. So it can discourage genuine participants.&lt;/p&gt;
+&lt;p&gt;Usually, as a competition organizer, you want to achieve some specific goal - promote a brand, new product or engage customers. You&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/detecting-bots-in-online-competitions/</link><guid isPermaLink="false">5bfb17de06cf757649a5db3f</guid><category>data analysis</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sun, 25 Nov 2018 23:23:20 GMT</pubDate><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Bots can ruin even the best competition. Their advantages are scale and speed. And it is very hard to compete with them. So it can discourage genuine participants.&lt;/p&gt;
+&lt;p&gt;Usually, as a competition organizer, you want to achieve some specific goal - promote a brand, new product or engage customers. You invest in setting up the voting (or other type of the game or activity) or pay external company for running the competition. Also, you provide prizes for the winners.&lt;/p&gt;
+&lt;p&gt;And it may happen that all your preparations and investments will lead to poor results or in some scenarios even to negative outcomes of the campaign.&lt;/p&gt;
+&lt;p&gt;Thus, it is good to prepare yourself upfront to be able to prevent such situations and achieve what you wanted.&lt;/p&gt;
+&lt;p&gt;Below you will find few advices how to make online voting fair. The described approach is not only applicable to bots, but also to other types of the fraud which you may encounter running the voting.&lt;/p&gt;
+&lt;h1 id="blockingbots"&gt;Blocking bots&lt;/h1&gt;
+&lt;p&gt;In general, there are three phases or steps which you should consider trying to block and neutralize bots or non-genuine users:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Pre-competition preparation&lt;/li&gt;
+&lt;li&gt;Actions during the voting&lt;/li&gt;
+&lt;li&gt;Post-competition steps&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Additionally to it, we can distinguish:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Pre factum&lt;/li&gt;
+&lt;li&gt;And post factum actions.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Saying simply, something what we can do so the scam will not happen and the actions which we take if anyway the fraud happened.&lt;/p&gt;
+&lt;h2 id="precompetitionpreparation"&gt;Pre-competition preparation&lt;/h2&gt;
+&lt;p&gt;This is a very crucial part and preparing well will benefit later significantly. At this stage, you should achieve two things:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;make voting as hard to automate as possible (of course without making the same to genuine human participants)&lt;/li&gt;
+&lt;li&gt;collect all data necessary to later be able to identify the fraud.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="preventautomation"&gt;Prevent automation&lt;/h3&gt;
+&lt;p&gt;Referring to the first part, you should consider if the participants have to register or not, if the registration by an email is possible or only through a social media account, if there will be any limitation related to an IP address or a voter's country. Also, you should make sure that in a Terms and Conditions agreement, you have a part which prohibits automated voting.&lt;/p&gt;
+&lt;p&gt;Additionally, you can add more obstacles to make the automation more difficult - e.g. entering on a page will generate a token (with a limited TTL) which will be necessary to send a valid vote - in such a way, you will eliminate bots which use proxies without session support.&lt;/p&gt;
+&lt;h3 id="collectdata"&gt;Collect data&lt;/h3&gt;
+&lt;p&gt;Having data will help you to identify bots and fraudulent activities earlier. Depend on the competition, the type of the information to collect may vary. However, some of them will be useful in a majority of the situations. Below, you can find few ideas:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;timestamp&lt;/li&gt;
+&lt;li&gt;IP address&lt;/li&gt;
+&lt;li&gt;country&lt;/li&gt;
+&lt;li&gt;region&lt;/li&gt;
+&lt;li&gt;city&lt;/li&gt;
+&lt;li&gt;session id&lt;/li&gt;
+&lt;li&gt;cookie information&lt;/li&gt;
+&lt;li&gt;operating system&lt;/li&gt;
+&lt;li&gt;browser type and version (User-Agent)&lt;/li&gt;
+&lt;li&gt;window size&lt;/li&gt;
+&lt;li&gt;installed plugins&lt;/li&gt;
+&lt;li&gt;if JavaScript enabled&lt;/li&gt;
+&lt;li&gt;language settings&lt;/li&gt;
+&lt;li&gt;device time and timezone&lt;/li&gt;
+&lt;li&gt;device type&lt;/li&gt;
+&lt;li&gt;referrer address&lt;/li&gt;
+&lt;li&gt;visited URL (including passed parameters through GET)&lt;/li&gt;
+&lt;li&gt;email domain if you require registration&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Besides, if the competition is run in European Union, remember about GDPR and add to T&amp;amp;C information what data will you collect and what is a purpose.&lt;/p&gt;
+&lt;h2 id="duringthevoting"&gt;During the voting&lt;/h2&gt;
+&lt;p&gt;When the competition is running, you should observe what is happening and at least analyze all abnormal situations. Identifying fraudulent behaviors quickly will help you to avoid discouraging genuine participants who can feel that taking part in the game is pointless when confronted with bots.&lt;/p&gt;
+&lt;p&gt;At this part, you may want to block some accounts, IP addresses or ban particular email domains.&lt;/p&gt;
+&lt;p&gt;Also, take a closer look when some participants gain votes very rapidly or during late night hours (unless it is international competition).&lt;/p&gt;
+&lt;p&gt;Remember that the majority of the bot actions are designed to give someone unfair advantage. However, in some situations, the bot may aim to harm a genuine user - e.g. the competitor wants to block his rival by pretending that the bot supports him.&lt;/p&gt;
+&lt;h2 id="afterthecompetition"&gt;After the competition&lt;/h2&gt;
+&lt;p&gt;When the voting has finished, it does not mean end for you. At this stage you should analyze data and pay a special attention to the users who are eligible to win the prizes.&lt;/p&gt;
+&lt;p&gt;Besides the analysis, you may consider to use a bit more old-school approach and call winners to interview them shortly what will add an extra security layer.&lt;/p&gt;
+&lt;h1 id="afterword"&gt;Afterword&lt;/h1&gt;
+&lt;p&gt;If you would like to add something to the article, do not hesitate to leave a comment.&lt;/p&gt;
+&lt;p&gt;If you feel that you would like to know more or you need a help with securing the online voting, just leave a message:&lt;/p&gt;
+&lt;script&gt;
+    (function show_email() {
+        var s = '@'
+            , n = 'adam.harasimowicz'
+            , k = 'outlook.com'
+            , e = n + s + k
+            , l = '&lt;a href=mailto:{{spam@spam.spam}}&gt;{{email-placeholder}}&lt;/a&gt;'.replace(/{{.+?(}})/g, e);
+        document.write(l);
+    })();
+&lt;/script&gt;
+&lt;/div&gt;</content:encoded></item><item><title>How to install CUDA and TensorFlow GPU on Ubuntu 16.04</title><description>I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.</description><link>http://localhost:2368/how-to-install-cuda-and-tensorflow-on-ubuntu-16-04/</link><guid isPermaLink="false">5adb1831b856c872c968a730</guid><category>neural network</category><category>CUDA</category><category>Ubuntu</category><category>GPU</category><category>NVIDIA</category><category>deep learning</category><category>tensorflow</category><category>machine learning</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 21 Apr 2018 16:28:46 GMT</pubDate><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;I remember when 4 years ago, I was trying to configure CUDA on a laptop with Ubuntu 14.04 and Nvidia Optimus technology - it was a quite tough process. Several times I messed up so much that it was easier to reinstall the whole OS to have a fresh start than trying to undo everything.&lt;/p&gt;
 &lt;p&gt;Luckily, time changed and nowadays, it's much easier and better documented. I was really positively surprised how much all CUDA-related tools matured over the time. So... let's start.&lt;/p&gt;
 &lt;h1 id="initialchecks"&gt;Initial checks&lt;/h1&gt;
 &lt;p&gt;Make few initial checks to ensure that everything is in place:&lt;/p&gt;
@@ -348,7 +420,6 @@ pip install --upgrade tensorflow-gpu
 oc new-app mysql-persistent
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Remember to save output from the command above as there will be login details to MySQL.&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="Free hosting for Ghost"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id="coderepository"&gt;Code repository&lt;/h3&gt;
 &lt;p&gt;Create &lt;a href="https://bitbucket.org/"&gt;BitBucket&lt;/a&gt; repository with your blog code. Eventually, if you are starting from scratch, you can obtain code from the official &lt;a href="https://github.com/TryGhost/Ghost"&gt;Ghost repo&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Next, generate SSH key pair.&lt;/p&gt;
@@ -446,7 +517,6 @@ profvis({
 &lt;pre&gt;&lt;code class="language-r"&gt;install.packages(&amp;quot;devtools&amp;quot;)
 devtools::install_github(&amp;quot;hadley/multidplyr&amp;quot;)
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="multidplyr - dplyr meets parallel processing"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id="basicfunctions"&gt;Basic functions&lt;/h4&gt;
 &lt;p&gt;There are two basic functions introduced by the package. First of them is &lt;code&gt;partition&lt;/code&gt; and it divides data into groups which will be processed independently. Thus, in many cases, it can be viewed as a replacement for &lt;code&gt;group_by&lt;/code&gt; function. The second is &lt;code&gt;collect&lt;/code&gt; which joins results produced in parallel into one object. If you are familiar with Spark, you can see the analogy. Below, you can find a simple example of the same code executed sequentially in dplyr and in parallel with multidplyr.&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-r"&gt;# Load packages
@@ -634,7 +704,6 @@ library(RColorBrewer)
 library(reshape2)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Before we'll plot heat map in ggplot2, we have to transform our data into melted form with &lt;em&gt;melt&lt;/em&gt; function from &lt;em&gt;reshape2&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="GymAI: Push-ups in Google Play"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-r"&gt;mat.melted &amp;lt;- melt(mat)
 print(mat.melted)
 
@@ -711,7 +780,6 @@ library(doParallel)
 # executing %dopar% sequentially: no parallel backend registered 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;If you run it for the first time, you should see the warning message which indicates that the loop ran sequentially. To execute your code in parallel, beside using &lt;em&gt;dopar&lt;/em&gt;, you have to register parallel backend - don't worry, it's easy.&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="R - parallel computing in 5 minutes (with foreach and doParallel)"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-r"&gt;registerDoParallel()
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Run command above and try one more time parallized version of the loop. You should see that now the execution time is lower. By default, registering backend without any parameters creates 3 workers on Windows and approximately half of the number of cores on Unix systems.&lt;/p&gt;
@@ -890,7 +958,6 @@ sudo apt-get install frei0r-plugins
 cd OpenCV
 git clone https://github.com/Itseez/opencv.git
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"&gt;&lt;img src="http://localhost:2368/content/images/2018/01/banner_gymai_1.jpeg" alt="Ubuntu 14.04 - install OpenCV with CUDA"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id="buildandinstallopencv"&gt;Build and install OpenCV&lt;/h4&gt;
 &lt;pre&gt;&lt;code class="language-bash"&gt;cd opencv
 mkdir release
@@ -937,56 +1004,6 @@ saveRDS(results, 'results.obj')
 # Deserialize object
 restored_results &amp;lt;- readRDS('results.obj')
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content:encoded></item><item><title>Extreme Learning Machine for digits recognition</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;General idea behind Extreme Learning Machines (ELMs) is transforming features into higher-dimensional space and using linear model to solve problem. More detailed information about ELMs you can find &lt;a href="http://www.ntu.edu.sg/home/egbhuang/"&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Although Extreme Learning Machines are far behind Deep Learning methods (at least according to popular CV benchmarks) they have substantial advantage&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/extreme-learning-machine-for-digits-recognition/</link><guid isPermaLink="false">5a0b698f673a20359e2377df</guid><category>ELM</category><category>MNIST</category><category>Python</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Sat, 28 Feb 2015 15:01:26 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/hi-tech-abstract-engine-1.jpg" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/hi-tech-abstract-engine-1.jpg" alt="Extreme Learning Machine for digits recognition"&gt;&lt;p&gt;General idea behind Extreme Learning Machines (ELMs) is transforming features into higher-dimensional space and using linear model to solve problem. More detailed information about ELMs you can find &lt;a href="http://www.ntu.edu.sg/home/egbhuang/"&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Although Extreme Learning Machines are far behind Deep Learning methods (at least according to popular CV benchmarks) they have substantial advantage - ability to learn fast caused by removing iterative training. Also as you can &lt;a href="http://mlwave.com/online-learning-perceptron/"&gt;read on MLWave&lt;/a&gt; principles on which ELM bases can be very powerful.&lt;/p&gt;
-&lt;p&gt;Here I'll show you how to start to work with ELMs in Python. We'll write a simple digit recognizer.&lt;/p&gt;
-&lt;h3 id="dataset"&gt;Data set&lt;/h3&gt;
-&lt;p&gt;For an experiment we will use &lt;a href="http://yann.lecun.com/exdb/mnist/"&gt;MNIST&lt;/a&gt; data set prepared for Theano's Deep Learning tutorial - as it is in Python-friendly format. Here is the link: &lt;a href="http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz"&gt;http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;In the archive you can find &lt;em&gt;mnist.pkl&lt;/em&gt; file which contains serialized tuple.&lt;/p&gt;
-&lt;pre&gt;&lt;code class="language-language-python"&gt;(train_obj, validation_obj, test_obj)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Each of these objects is also a tuple in following format:&lt;/p&gt;
-&lt;pre&gt;&lt;code class="language-language-python"&gt;(inputs, labels)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Where &lt;em&gt;inputs&lt;/em&gt; object is a matrix (2d-numpy's array) with every sample in separated row and the &lt;em&gt;labels&lt;/em&gt; object is a list.&lt;/p&gt;
-&lt;h3 id="code"&gt;Code&lt;/h3&gt;
-&lt;p&gt;We will use ELM's implementation already available on GitHub. So you need to clone the repository: &lt;a href="https://github.com/dclambert/Python-ELM"&gt;https://github.com/dclambert/Python-ELM&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Then you can try following code which should achieve 97.33% accuracy on validation set and 97.02% on test set. On my machine learning and evaluation took around 11 minutes. Also if you have less than 8GB of memory it's a good idea to decrease number of hidden units for ELM.&lt;/p&gt;
-&lt;pre&gt;&lt;code class="language-language-python"&gt;import cPickle
-import numpy as np
-from elm import ELMClassifier
-from sklearn import linear_model
-
-
-def load_mnist(path='../Data/mnist.pkl'):
-    with open(path, 'rb') as f:
-        return cPickle.load(f)
-
-
-def get_datasets(data):
-    _train_x, _train_y = data[0][0], np.array(data[0][1]).reshape(len(data[0][1]), 1)
-    _val_x, _val_y = data[1][0], np.array(data[1][1]).reshape(len(data[1][1]), 1)
-    _test_x, _test_y = data[2][0], np.array(data[2][1]).reshape(len(data[2][1]), 1)
-
-    return _train_x, _train_y, _val_x, _val_y, _test_x, _test_y
-
-
-if __name__ == '__main__':
-    # Load data sets
-    train_x, train_y, val_x, val_y, test_x, test_y = get_datasets(load_mnist())
-    # Build ELM
-    cls = ELMClassifier(n_hidden=7000,
-                        alpha=0.93,
-                        activation_func='multiquadric',
-                        regressor=linear_model.Ridge(),
-                        random_state=21398023)
-    cls.fit(train_x, train_y)
-    # Evaluate model
-    print 'Validation error:', cls.score(val_x, val_y)
-    print 'Test error:', cls.score(test_x, test_y)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Code is available on GitHub (&lt;a href="https://github.com/ahara/blog/blob/master/elm_mnist/elm_mnist.py"&gt;link&lt;/a&gt;). To improve the solution you can use &lt;em&gt;gzip&lt;/em&gt; module to read &lt;em&gt;pkl&lt;/em&gt; file directly from archive.&lt;/p&gt;
 &lt;/div&gt;</content:encoded></item><item><title>Torch7 - Reading CSV into tensor</title><description>&lt;div class="kg-card-markdown"&gt;&lt;p&gt;Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with &lt;code&gt;csvigo&lt;/code&gt; module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to&lt;/p&gt;&lt;/div&gt;</description><link>http://localhost:2368/torch7-reading-csv-into-tensor/</link><guid isPermaLink="false">5a0b698f673a20359e2377de</guid><category>Torch</category><category>LUA</category><dc:creator>Adam Harasimowicz</dc:creator><pubDate>Fri, 06 Feb 2015 17:41:45 GMT</pubDate><media:content url="http://localhost:2368/content/images/2017/11/torch-tw.png" medium="image"/><content:encoded>&lt;div class="kg-card-markdown"&gt;&lt;img src="http://localhost:2368/content/images/2017/11/torch-tw.png" alt="Torch7 - Reading CSV into tensor"&gt;&lt;p&gt;Loading content from CSV files in Torch is not as easy as it should be (at least for Lua beginner). I started with &lt;code&gt;csvigo&lt;/code&gt; module and wanted to load data, firstly, into table and then move it to tensor. It worked, but only for a test set... data destinated to train model were too big. Yes, csvigo wasn't able to work with 350MB file and returned nice error: &lt;em&gt;not enough memory&lt;/em&gt;. According to thread in Google Groups rebuilding torch with different flags could help.&lt;/p&gt;
 &lt;p&gt;So I decided to use lower level mechanism - reading CSV as a normal file - line by line. Core part of code looked like:&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-lua"&gt;-- Read data from CSV to tensor

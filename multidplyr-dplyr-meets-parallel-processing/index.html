@@ -8,8 +8,8 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="../assets/built/screen.css?v=330e35459a">
-    <link rel="stylesheet" type="text/css" href="../assets/css/prism.css?v=330e35459a"> 
+    <link rel="stylesheet" type="text/css" href="../assets/built/screen.css?v=0b2b82e060">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prism.css?v=0b2b82e060"> 
 
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
     <link rel="canonical" href="index.html">
@@ -23,7 +23,7 @@
     <meta property="og:url" content="http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/">
     <meta property="og:image" content="http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg">
     <meta property="article:published_time" content="2017-03-08T18:14:07.000Z">
-    <meta property="article:modified_time" content="2018-01-01T15:40:15.000Z">
+    <meta property="article:modified_time" content="2018-11-28T23:30:00.000Z">
     <meta property="article:tag" content="R">
     <meta property="article:tag" content="parallel computing">
     
@@ -72,7 +72,7 @@
     "headline": "multidplyr - dplyr meets parallel processing",
     "url": "http://localhost:2368/multidplyr-dplyr-meets-parallel-processing/",
     "datePublished": "2017-03-08T18:14:07.000Z",
-    "dateModified": "2018-01-01T15:40:15.000Z",
+    "dateModified": "2018-11-28T23:30:00.000Z",
     "image": {
         "@type": "ImageObject",
         "url": "http://localhost:2368/content/images/2017/11/computer-memory-chips.jpg",
@@ -88,7 +88,7 @@
 }
     </script>
 
-    <script type="text/javascript" src="../public/ghost-sdk.js?v=330e35459a"></script>
+    <script type="text/javascript" src="../public/ghost-sdk.js?v=0b2b82e060"></script>
 <script type="text/javascript">
 ghost.init({
 	clientId: "ghost-frontend",
@@ -171,7 +171,6 @@ ghost.init({
 <pre><code class="language-r">install.packages("devtools")
 devtools::install_github("hadley/multidplyr")
 </code></pre>
-<p><a href="https://play.google.com/store/apps/details?id=ai.gym.gymai"><img src="../content/images/2018/01/banner_gymai_1.jpeg" alt="GymAI: Push-ups in Google Play"></a></p>
 <h4 id="basicfunctions">Basic functions</h4>
 <p>There are two basic functions introduced by the package. First of them is <code>partition</code> and it divides data into groups which will be processed independently. Thus, in many cases, it can be viewed as a replacement for <code>group_by</code> function. The second is <code>collect</code> which joins results produced in parallel into one object. If you are familiar with Spark, you can see the analogy. Below, you can find a simple example of the same code executed sequentially in dplyr and in parallel with multidplyr.</p>
 <pre><code class="language-r"># Load packages
@@ -460,7 +459,7 @@ cluster_get(cluster, 'one')
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous">
     </script>
-    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=330e35459a"></script>
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=0b2b82e060"></script>
 
 
     <script>
@@ -530,6 +529,6 @@ $(document).ready(function () {
 
     
 
-    <script type="text/javascript" src="../assets/js/prism.js?v=330e35459a"></script>
+    <script type="text/javascript" src="../assets/js/prism.js?v=0b2b82e060"></script>
 
 </body>
